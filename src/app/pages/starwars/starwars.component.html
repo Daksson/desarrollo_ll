@@ -1,1 +1,93 @@
-<p>starwars works!</p>
+<h1>Personajes de Star Wars</h1>
+
+<form (ngSubmit)="search()">
+  <input type="text" name="searchText" [(ngModel)]="searchText" placeholder="Buscar por nombre">
+  <button type="submit">Buscar</button>
+</form>
+
+@if (starwars.loading()) {
+  <p class="message">Cargando...</p>
+}
+
+@if (starwars.error()) {
+  <p class="message error">{{ starwars.error() }}</p>
+}
+
+@if (!starwars.loading() && !starwars.error() && starwars.people().length === 0) {
+  <p class="message">No se encontraron personajes.</p>
+}
+
+@if (starwars.selectedPerson(); as person) {
+  <section class="detail">
+    <div class="detail-header">
+      <h2>{{ person.name }}</h2>
+      <button (click)="closeDetail()">Cerrar</button>
+    </div>
+
+    @if (starwars.loadingDetail()) {
+      <p class="message">Cargando detalle...</p>
+    }
+
+    <div class="detail-content">
+      @if (starwars.planet(); as planet) {
+        <div>
+          <h3>Planeta natal</h3>
+          <p class="planet-name">{{ planet.name }}</p>
+          <ul>
+            <li>Clima: {{ planet.climate }}</li>
+            <li>Terreno: {{ planet.terrain }}</li>
+            <li>Población: {{ planet.population }}</li>
+          </ul>
+        </div>
+      }
+
+      @if (starwars.films().length > 0) {
+        <div>
+          <h3>Películas</h3>
+          <ul>
+            @for (film of starwars.films(); track film.url) {
+              <li>Episodio {{ film.episode_id }}: {{ film.title }} ({{ film.release_date }}), dirigida por {{ film.director }}</li>
+            }
+          </ul>
+        </div>
+      }
+    </div>
+  </section>
+}
+
+<p class="total">{{ starwars.total() }} personajes encontrados</p>
+
+<div class="table-container">
+  <table>
+    <thead>
+      <tr>
+        <th>Nombre</th>
+        <th>Género</th>
+        <th>Año de nacimiento</th>
+        <th>Altura (cm)</th>
+        <th>Peso (kg)</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (person of starwars.people(); track person.url) {
+        <tr>
+          <td class="name">{{ person.name }}</td>
+          <td>{{ person.gender }}</td>
+          <td>{{ person.birth_year }}</td>
+          <td>{{ person.height }}</td>
+          <td>{{ person.mass }}</td>
+          <td>
+            <button class="small" (click)="showDetail(person)" [disabled]="starwars.loadingDetail()">Ver detalle</button>
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+
+<div class="pagination">
+  <button (click)="previousPage()" [disabled]="!starwars.hasPrevious() || starwars.loading()">Anterior</button>
+  <span>Página {{ page }}</span>
+  <button (click)="nextPage()" [disabled]="!starwars.hasNext() || starwars.loading()">Siguiente</button>
+</div>
