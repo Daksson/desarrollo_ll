@@ -1,0 +1,61 @@
+header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 24px;
+  font-family: 'Segoe UI', Roboto, Arial, sans-serif;
+  background-color: rgba(7, 11, 26, 0.85);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid #1f2745;
+}
+
+.brand {
+  font-size: 1.3rem;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  color: #fff;
+  text-decoration: none;
+}
+
+.brand span {
+  color: #30b0ff;
+}
+
+nav {
+  display: flex;
+  gap: 6px;
+}
+
+nav a {
+  padding: 7px 16px;
+  font-weight: 600;
+  color: #c9d3ea;
+  text-decoration: none;
+  border: 1px solid transparent;
+  border-radius: 999px;
+}
+
+nav a:hover {
+  border-color: #34426a;
+}
+
+/* Enlace activo: cada sección con su color */
+
+nav a.active {
+  color: #fff;
+  background-color: #0071e3;
+}
+
+nav a.nasa.active {
+  background-color: #fc3d21;
+}
+
+nav a.starwars.active {
+  color: #000;
+  background-color: #ffe81f;
+}

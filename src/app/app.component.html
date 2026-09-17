@@ -1,7 +1,11 @@
-<nav>
-  <a routerLink="/">Inicio</a>
-  <a routerLink="/nasa">NASA</a>
-  <a routerLink="/starwars">Star Wars</a>
-</nav>
+<header>
+  <a class="brand" routerLink="/">Space<span>Explorer</span></a>
+
+  <nav>
+    <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Inicio</a>
+    <a class="nasa" routerLink="/nasa" routerLinkActive="active">NASA</a>
+    <a class="starwars" routerLink="/starwars" routerLinkActive="active">Star Wars</a>
+  </nav>
+</header>
 
 <router-outlet />
