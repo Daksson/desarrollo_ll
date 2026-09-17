@@ -26,7 +26,9 @@ describe('StarwarsService', () => {
   });
 
   it('should be created', () => {
-    expect(service).toBeTruthy();
+    if (!service) {
+      throw new Error('Service was not created');
+    }
   });
 
   it('should send page and search and return the mapped characters', () => {
