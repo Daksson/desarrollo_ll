@@ -1,0 +1,1241 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SpaceExplorer · Desarrollo de Software II</title>
+<!--
+  CÓMO JUNTAR LAS PARTES
+  - Cada parte va entre sus comentarios PARTE ... INICIO / FIN.
+  - Para agregar la parte de la NASA, pegar sus <section> donde dice PARTE NASA.
+  - La numeración de páginas y el contador se calculan solos.
+  - Marca de quién habla: <div class="spk d1"> Daniel, <div class="spk d2"> Daksson.
+  - Los diagramas son archivos aparte en esta misma carpeta y se muestran con <iframe>.
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+<style>
+:root{
+  --ink:#1d1d1f; --soft:#6e6e73; --line:#d2d2d7;
+  --light:#f5f5f7; --paper:#fbfbfd; --white:#fff;
+  --dark:#0a0a0a; --dim:#86868b;
+  --accent:#0071e3; --accent2:#30b0ff; --green:#34a853; --orange:#e8820c; --red:#d93025;
+  --star:#ffe81f; --nasa:#fc3d21;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;background:#000;font-family:'Inter',-apple-system,'Segoe UI',Roboto,Arial,sans-serif;-webkit-font-smoothing:antialiased;overflow:hidden}
+iconify-icon{display:inline-block;vertical-align:middle}
+
+#stage{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#000}
+#deck{width:1280px;height:720px;position:relative;transform-origin:center center}
+
+.slide{position:absolute;inset:0;opacity:0;visibility:hidden;transition:opacity .4s ease;display:flex;flex-direction:column;justify-content:center;padding:80px 96px;overflow:hidden}
+.slide.active{opacity:1;visibility:visible}
+.slide.light{background:var(--light);color:var(--ink)}
+.slide.paper{background:var(--paper);color:var(--ink)}
+.slide.dark{background:var(--dark);color:var(--light)}
+.slide.space{background:radial-gradient(circle at 20% 10%,rgba(99,102,241,.25),transparent 40%),radial-gradient(circle at 80% 90%,rgba(14,165,233,.2),transparent 40%),#070b1a;color:var(--light)}
+.slide.sw{background:radial-gradient(circle at 75% 20%,rgba(255,232,31,.14),transparent 45%),#05060d;color:var(--light)}
+.slide.tight{padding:52px 66px 44px}
+.slide.nasa{background:radial-gradient(circle at 75% 20%,rgba(252,61,33,.16),transparent 45%),#0b1026;color:var(--light)}
+
+/* tipografía */
+.eyebrow{font-size:17px;font-weight:600;color:var(--accent);margin-bottom:14px}
+.slide.dark .eyebrow,.slide.space .eyebrow{color:var(--accent2)}
+.slide.sw .eyebrow{color:var(--star)}
+.display{font-size:90px;font-weight:700;line-height:1.02;letter-spacing:-.035em}
+.h2{font-size:48px;font-weight:700;line-height:1.08;letter-spacing:-.025em}
+.lead{font-size:24px;line-height:1.4;color:var(--soft);max-width:920px}
+.slide.dark .lead,.slide.space .lead,.slide.sw .lead{color:var(--dim)}
+.yellow{color:var(--star)}
+code{font-family:'JetBrains Mono',Consolas,monospace;font-size:.88em;background:rgba(0,0,0,.06);padding:1px 6px;border-radius:5px;font-variant-ligatures:none}
+.slide.dark code,.slide.space code,.slide.sw code{background:rgba(255,255,255,.1)}
+.slide.active .anim{animation:rise .6s cubic-bezier(.2,.7,.2,1) both}
+.slide.active .anim:nth-child(3){animation-delay:.06s}
+.slide.active .anim:nth-child(4){animation-delay:.12s}
+@keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+
+/* cabecera de diapositiva con contenido */
+.dhead{margin-bottom:16px}
+.dhead .eyebrow{margin-bottom:6px}
+.dhead h3{font-size:30px;font-weight:700;letter-spacing:-.02em}
+
+/* marcas fijas */
+.pg{position:absolute;bottom:22px;right:40px;font-size:13px;color:var(--soft)}
+.slide.dark .pg,.slide.space .pg,.slide.sw .pg{color:var(--dim)}
+.spk{position:absolute;top:22px;right:40px;display:flex;align-items:center;gap:8px;font-size:12.5px;font-weight:600;color:var(--soft);z-index:3}
+.spk .av{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:800}
+.spk.d1 .av{background:var(--accent)} .spk.d2 .av{background:var(--orange)}
+.slide.dark .spk,.slide.space .spk,.slide.sw .spk{color:var(--dim)}
+.tagline{position:absolute;bottom:38px;left:96px;font-size:14px;color:var(--dim)}
+.uni{position:absolute;top:40px;left:96px;font-size:12px;line-height:1.35;color:var(--dim)}
+.uni b{color:var(--light);font-weight:600}
+
+/* código */
+.code{background:#0f1117;color:#e6e6e6;border-radius:12px;padding:12px 16px;font-family:'JetBrains Mono',Consolas,monospace;font-size:12.5px;line-height:1.5;white-space:pre;overflow:hidden;border:1px solid #2a2d36;font-variant-ligatures:none}
+.code.sm{font-size:11.5px;line-height:1.45}
+.code .k{color:#c792ea}.code .s{color:#c3e88d}.code .c{color:#7a7f8e;font-style:italic}.code .t{color:#82aaff}.code .f{color:#ffcb6b}.code .n{color:#f78c6c}
+.code .hl{background:rgba(255,203,107,.2);border-radius:3px}
+.codehead{font-size:11.5px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;color:var(--soft);margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.codehead.clase{color:var(--orange)} .codehead.proy{color:var(--accent)}
+.cmp{display:grid;grid-template-columns:1fr 1fr;gap:22px;align-items:start}
+.cmp.w{grid-template-columns:.9fr 1.1fr}
+.cmp>*{min-width:0}
+
+/* bloques */
+.callout{border-left:4px solid var(--accent);background:#eef5ff;padding:9px 14px;border-radius:8px;font-size:14.5px;line-height:1.4;margin-top:10px}
+.callout.o{border-color:var(--orange);background:#fff4e6}
+.callout.g{border-color:var(--green);background:#eaf7ee}
+.slide.dark .callout{background:#12233a;color:var(--light)}
+.tree{font-family:'JetBrains Mono',Consolas,monospace;font-size:12.5px;line-height:1.45;white-space:pre;font-variant-ligatures:none;background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px 18px}
+.tree b{color:var(--accent)} .tree i{color:var(--soft);font-style:normal}
+.ktable{width:100%;border-collapse:collapse;font-size:14.5px;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 4px 14px rgba(0,0,0,.05)}
+.ktable th{background:var(--ink);color:#fff;text-align:left;padding:9px 14px;font-size:12.5px;font-weight:600}
+.ktable td{padding:8px 14px;border-bottom:1px solid #ececf0;vertical-align:top}
+.ktable tr:last-child td{border-bottom:0}
+.ktable .ok{color:var(--green);font-weight:700;white-space:nowrap}
+.ktable .bad{color:var(--red);font-weight:700}
+.ktable.sm{font-size:13px} .ktable.sm td{padding:6px 12px}
+.ktable.voc td:first-child{white-space:nowrap;width:1%}
+.twocol{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:start}
+.twocol>*{min-width:0}
+.vlist{list-style:none}
+.vlist li{display:flex;gap:11px;font-size:16px;line-height:1.4;padding:9px 0;border-top:1px solid var(--line);color:var(--soft)}
+.vlist li:first-child{border-top:0}
+.vlist li b{color:var(--ink);font-weight:600}
+.vlist iconify-icon{font-size:21px;color:var(--accent);flex:0 0 auto;margin-top:1px}
+.slide.dark .vlist li{border-color:#2f2f33;color:var(--dim)}
+.slide.dark .vlist li b{color:var(--light)}
+.slide.sw .vlist li{border-color:#2f2f33;color:var(--dim);font-size:19px}
+.slide.sw .vlist li b{color:var(--light)}
+.slide.sw .vlist iconify-icon{font-size:26px}
+.slide.nasa .vlist li{border-color:#2f2f33;color:var(--dim);font-size:19px}
+.slide.nasa .vlist li b{color:var(--light)}
+.slide.nasa .vlist iconify-icon{font-size:26px}
+.slide.nasa .eyebrow{color:var(--nasa)}
+.slide.nasa .lead,.slide.nasa .pg,.slide.nasa .spk{color:var(--dim)}
+.slide.nasa code{background:rgba(255,255,255,.1)}
+.red{color:var(--nasa)}
+.vlist.nasa-icons iconify-icon{color:var(--nasa)}
+.subt{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--soft);margin-bottom:6px}
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:22px}
+.card{border:1px solid var(--line);border-radius:14px;padding:18px;background:#fff}
+.card iconify-icon{font-size:28px;margin-bottom:8px}
+.card h4{font-size:18px;font-weight:600;margin-bottom:6px}
+.card p{font-size:14px;color:var(--soft);line-height:1.4}
+.coverlogos{display:flex;align-items:center;gap:18px;margin-top:34px;flex-wrap:wrap}
+.coverlogos .b{display:flex;align-items:center;gap:10px;font-size:20px;font-weight:600}
+.coverlogos iconify-icon{font-size:36px}
+.plus{color:var(--dim);font-size:24px}
+
+/* diagramas de archify */
+.diagram{flex:1;min-height:0;display:flex;flex-direction:column}
+.diagram iframe{flex:1;min-height:0;width:100%;border:1px solid rgba(0,0,0,.12);border-radius:12px;background:#fff;display:block}
+.dlink{font-size:13px;color:var(--soft);margin-top:8px}
+
+/* navegación */
+.hud{position:fixed;bottom:14px;left:50%;transform:translateX(-50%);z-index:50;display:flex;gap:9px;align-items:center;background:rgba(20,20,22,.72);backdrop-filter:blur(14px);color:#fff;padding:7px 12px;border-radius:100px;font-size:13px;opacity:0;transition:opacity .3s}
+.hud.visible,.hud:hover{opacity:1}
+.hud button{background:rgba(255,255,255,.14);color:#fff;border:0;width:30px;height:30px;border-radius:50%;font-size:15px;cursor:pointer}
+.hud button:hover{background:var(--accent)}
+.hud .pgn{min-width:60px;text-align:center}
+.hint{position:fixed;bottom:18px;left:16px;z-index:50;color:#6e6e73;font-size:12px;opacity:0;transition:opacity .3s}
+.hint.visible{opacity:1}
+@media print{
+  html,body{overflow:visible;background:#fff}
+  #stage{position:static} #deck{transform:none!important;height:auto}
+  .slide{position:relative;opacity:1!important;visibility:visible!important;height:720px;page-break-after:always;inset:auto}
+  .hud,.hint{display:none!important}
+  @page{size:1280px 720px;margin:0}
+}
+</style>
+</head>
+<body>
+<div id="stage"><div id="deck">
+
+<!-- ═══════════════ PORTADA (común) ═══════════════ -->
+<section class="slide space">
+  <div class="uni"><b>Ingeniería de Sistemas</b><br>Universidad de los Llanos<br>Desarrollo de Software II · 2026</div>
+  <div class="eyebrow anim">Proyecto final de Desarrollo de Software II</div>
+  <div class="display anim">Space<span style="color:var(--accent2)">Explorer</span></div>
+  <div class="lead anim" style="margin-top:24px">Una app en Angular para explorar dos universos: el de Star Wars y el de la NASA.</div>
+  <div class="coverlogos anim">
+    <div class="b"><iconify-icon icon="logos:angular-icon"></iconify-icon> Angular 18</div>
+    <span class="plus">+</span>
+    <div class="b"><iconify-icon icon="mdi:death-star-variant" style="color:var(--star)"></iconify-icon> SWAPI</div>
+    <span class="plus">+</span>
+    <div class="b"><iconify-icon icon="simple-icons:nasa" style="color:var(--nasa)"></iconify-icon> NASA API</div>
+  </div>
+  <div class="tagline">Daniel Felipe Puin Motavita · Daksson Miguel Gualteros Marin</div>
+  <div class="pg"></div>
+</section>
+
+<!-- ═══════════════ PARTE STAR WARS · INICIO ═══════════════ -->
+
+<!-- SW-1 · Portada de la parte -->
+<section class="slide sw">
+  <div class="spk d1"><div class="av">D</div>Daniel</div>
+  <div class="eyebrow anim">Mi parte</div>
+  <div class="display anim">Star Wars<br><span class="yellow">con SWAPI.</span></div>
+  <div class="lead anim" style="margin-top:22px">Les voy a contar cómo pasé de un JSON donde todo llega como texto a una tabla que se puede buscar, paginar y abrir en detalle.</div>
+  <div class="pg"></div>
+</section>
+
+<!-- SW-2 · Qué hace -->
+<section class="slide light tight">
+  <div class="spk d1"><div class="av">D</div>Daniel</div>
+  <div class="dhead"><div class="eyebrow">Primero, lo que se ve</div><h3>Una lista de 82 personajes y la ficha de cada uno</h3></div>
+  <div class="twocol">
+    <div>
+      <ul class="vlist">
+        <li><iconify-icon icon="mdi:table"></iconify-icon><div><b>La lista.</b> Muestra 10 personajes por página. Si escribo "sky" y le doy Enter, quedan tres: Luke, Anakin y Shmi Skywalker.</div></li>
+        <li><iconify-icon icon="mdi:account-details-outline"></iconify-icon><div><b>La ficha.</b> Con "Ver detalle" voy a <code>/starwars/1</code> y ahí salen los datos de Luke, su planeta y sus películas.</div></li>
+        <li><iconify-icon icon="mdi:alert-circle-outline"></iconify-icon><div><b>Cuando algo falla.</b> Mientras espera dice "Cargando..." y, si la API no responde o el personaje no existe, lo avisa.</div></li>
+        <li><iconify-icon icon="mdi:test-tube"></iconify-icon><div><b>Y pruebas</b>, para saber que no rompí nada cuando cambio el código.</div></li>
+      </ul>
+    </div>
+    <div>
+      <div class="subt">Lo que le pido a swapi.dev (no necesita clave)</div>
+      <table class="ktable sm">
+        <thead><tr><th>Petición</th><th>Para qué la uso</th></tr></thead>
+        <tbody>
+          <tr><td><code>/people/?page=2&amp;search=sky</code></td><td>la lista, con página y búsqueda</td></tr>
+          <tr><td><code>/people/1/</code></td><td>un solo personaje, para la ficha</td></tr>
+          <tr><td><code>/planets/1/</code></td><td>su planeta</td></tr>
+          <tr><td><code>/films/1/</code></td><td>cada una de sus películas</td></tr>
+        </tbody>
+      </table>
+      <div class="callout o">Son cuatro peticiones distintas a la misma API. Las tres últimas solo las hago cuando alguien abre una ficha.</div>
+    </div>
+  </div>
+  <div class="pg"></div>
+</section>
+
+<!-- SW-3 · Estructura -->
+<section class="slide paper tight">
+  <div class="spk d1"><div class="av">D</div>Daniel</div>
+  <div class="dhead"><div class="eyebrow">Cómo lo organicé</div><h3>Tomé la forma de ordenar del <code>gifs-app</code> que hicimos en clase</h3></div>
+  <div class="cmp w">
+    <div class="tree"><b>src/</b>
+├── <b>environments/</b>
+│   ├── environment.ts              <i>swapiUrl</i>
+│   └── environment.development.ts
+└── <b>app/</b>
+    ├── app.routes.ts               <i>/starwars · /starwars/:id</i>
+    ├── <b>interfaces/</b>
+    │   ├── swapi.interface.ts      <i>lo que llega</i>
+    │   └── starwars.interface.ts   <i>lo que usamos</i>
+    ├── <b>mappers/</b>
+    │   └── starwars.mapper.ts      <i>convierte uno en otro</i>
+    ├── <b>services/service_starwars/</b>
+    │   └── starwars.service.ts     <i>HttpClient</i>
+    ├── <b>components/starwars/</b>
+    │   └── character-list/         <i>la tabla</i>
+    └── <b>pages/</b>
+        ├── starwars/               <i>lista + buscador</i>
+        └── starwars-detail/        <i>detalle</i></div>
+    <div>
+      <table class="ktable sm">
+        <thead><tr><th>Carpeta</th><th>Qué guarda</th></tr></thead>
+        <tbody>
+          <tr><td><b>environments</b></td><td>La dirección de la API. Si cambia, la cambio en un solo sitio.</td></tr>
+          <tr><td><b>interfaces</b></td><td>Cómo llegan los datos y cómo los quiero yo.</td></tr>
+          <tr><td><b>mappers</b></td><td>El que traduce de una forma a la otra.</td></tr>
+          <tr><td><b>services</b></td><td>El único que habla con la API.</td></tr>
+          <tr><td><b>components</b></td><td>Piezas que solo muestran cosas, como la tabla.</td></tr>
+          <tr><td><b>pages</b></td><td>Las pantallas: guardan los datos y le piden al servicio.</td></tr>
+        </tbody>
+      </table>
+      <div class="callout">La idea es que si SWAPI cambia el nombre de un campo, solo toco el mapper, y ni la tabla ni las páginas se enteran.</div>
+    </div>
+  </div>
+  <div class="pg"></div>
+</section>
+
+<!-- SW-3b · Vocabulario -->
+<section class="slide paper tight">
+  <div class="spk d1"><div class="av">D</div>Daniel</div>
+  <div class="dhead"><div class="eyebrow">Antes de meternos al código</div><h3>Palabras que voy a repetir bastante</h3></div>
+  <div class="twocol" style="gap:20px">
+    <div>
+      <div class="subt">De la API</div>
+      <table class="ktable sm voc">
+        <tbody>
+          <tr><td><b>API</b></td><td>Un servidor al que le pido datos. En mi caso, <code>swapi.dev</code>.</td></tr>
+          <tr><td><b>Petición GET</b></td><td>La forma de pedirle datos. <code>GET /people/1/</code> es "dame a Luke".</td></tr>
+          <tr><td><b>JSON</b></td><td>El formato en que responde: pares clave y valor, como <code>"height": "172"</code>.</td></tr>
+          <tr><td><b>Interfaz</b></td><td>Le dice a TypeScript qué campos tiene un objeto y de qué tipo.</td></tr>
+          <tr><td><b>Mapper</b></td><td>Mi traductor: convierte <code>"172"</code> en <code>172</code>.</td></tr>
+          <tr><td><b>environment</b></td><td>Donde guardo la configuración, como <code>swapiUrl</code>.</td></tr>
+          <tr><td><b>Servicio / inject</b></td><td>La clase que habla con la API; con <code>inject</code> cualquier página la puede usar.</td></tr>
+          <tr><td><b>HttpClient</b></td><td>Lo que trae Angular para hacer peticiones: <code>this.http.get(...)</code>.</td></tr>
+          <tr><td><b>expectOne / flush</b></td><td>En las pruebas: revisar qué pedí y responder con datos de mentira.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div>
+      <div class="subt">De Angular</div>
+      <table class="ktable sm voc">
+        <tbody>
+          <tr><td><b>Observable</b></td><td>Una respuesta que todavía no llega, pero va a llegar.</td></tr>
+          <tr><td><b>subscribe</b></td><td>"Avísame cuando llegue". En <code>next</code> recibo los datos y en <code>error</code> el fallo.</td></tr>
+          <tr><td><b>pipe(map)</b></td><td>Cambia la respuesta por el camino. Ahí llamo al mapper.</td></tr>
+          <tr><td><b>signal</b></td><td>Una variable que, cuando cambia con <code>set</code> o <code>update</code>, actualiza la pantalla sola.</td></tr>
+          <tr><td><b>Componente</b></td><td>Un pedazo de pantalla con su HTML, su CSS y su código.</td></tr>
+          <tr><td><b>input.required</b></td><td>Un dato que el componente padre le tiene que pasar al hijo.</td></tr>
+          <tr><td><b>Ruta y :id</b></td><td>Qué página abre cada URL. <code>:id</code> es la parte que cambia, el 1 de <code>/starwars/1</code>.</td></tr>
+          <tr><td><b>routerLink</b></td><td>Un enlace que cambia de página sin recargar el navegador.</td></tr>
+          <tr><td><b>ActivatedRoute</b></td><td>Me deja leer la URL actual, por ejemplo el <code>id</code>.</td></tr>
+          <tr><td><b>#searchInput</b></td><td>Un nombre para el input, para leer lo que escribieron al dar Enter.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="pg"></div>
+</section>
+
+<!-- SW-4 · Arquitectura (archify) -->
+<section class="slide light tight">
+  <div class="spk d1"><div class="av">D</div>Daniel</div>
+  <div class="dhead"><div class="eyebrow">El mapa</div><h3>Cómo se conectan las piezas</h3></div>
+  <div class="diagram">
+    <iframe src="arquitectura-starwars.html" title="Arquitectura de la parte de Star Wars"></iframe>
+  </div>
+  <div class="dlink">Se puede mover y hacer zoom. Si no se alcanza a ver, lo abro aparte: <code>presentacion/arquitectura-starwars.html</code></div>
+  <div class="pg"></div>
+</section>
+
+<!-- SW-5 · Interfaces y mapper -->
+<section class="slide light tight">
+  <div class="spk d1"><div class="av">D</div>Daniel</div>
+  <div class="dhead"><div class="eyebrow">El primer problema</div><h3>SWAPI me manda todo como texto</h3></div>
+  <div class="cmp">
+    <div>
+      <div class="codehead clase"><iconify-icon icon="mdi:school-outline"></iconify-icon> En clase · gifs-app/mappers/gif.mapper.ts</div>
+      <div class="code sm"><span class="k">export class</span> <span class="t">GifMapper</span> {
+  <span class="k">static</span> <span class="f">mapGiphyItemToGif</span>(giphyItem: <span class="t">GiphyItem</span>): <span class="t">Gif</span> {
+    <span class="k">return</span> {
+      id: giphyItem.id,
+      title: giphyItem.title,
+      url: giphyItem.images.original.url
+    }
+  }
+}</div>
+      <div class="codehead proy" style="margin-top:12px">interfaces: cómo llega y cómo lo quiero</div>
+      <div class="code sm"><span class="c">// swapi.interface.ts</span>
+<span class="k">export interface</span> <span class="t">SwapiPerson</span> {
+  height: <span class="t">string</span>;     <span class="c">// "172" o "unknown"</span>
+  birth_year: <span class="t">string</span>;
+  url: <span class="t">string</span>;        <span class="c">// ".../people/1/"</span>
+}
+<span class="c">// starwars.interface.ts</span>
+<span class="k">export interface</span> <span class="t">Character</span> {
+  id: <span class="t">number</span>;
+  height: <span class="t">number</span> | <span class="k">null</span>;
+  birthYear: <span class="t">string</span>;
+}</div>
+    </div>
+    <div>
+      <div class="codehead proy"><iconify-icon icon="mdi:rocket-launch-outline"></iconify-icon> mappers/starwars.mapper.ts</div>
+      <div class="code sm"><span class="k">export class</span> <span class="t">StarwarsMapper</span> {
+
+  <span class="c">// "https://swapi.dev/api/people/1/" -&gt; 1</span>
+  <span class="k">static</span> <span class="f">getIdFromUrl</span>(url: <span class="t">string</span>): <span class="t">number</span> {
+    <span class="k">const</span> parts = url.split(<span class="s">'/'</span>).filter((part) =&gt; part !== <span class="s">''</span>);
+    <span class="k">return</span> <span class="t">Number</span>(parts[parts.length - <span class="n">1</span>]);
+  }
+
+  <span class="c">// "172" -&gt; 172, "1,358" -&gt; 1358, "unknown" -&gt; null</span>
+  <span class="k">static</span> <span class="f">toNumber</span>(value: <span class="t">string</span>): <span class="t">number</span> | <span class="k">null</span> {
+    <span class="k">const</span> number = <span class="t">Number</span>(value.replace(<span class="s">','</span>, <span class="s">''</span>));
+    <span class="k">return</span> isNaN(number) ? <span class="k">null</span> : number;
+  }
+
+  <span class="k">static</span> <span class="f">mapPersonToCharacter</span>(person: <span class="t">SwapiPerson</span>): <span class="t">Character</span> {
+    <span class="k">return</span> {
+      id: <span class="t">StarwarsMapper</span>.<span class="f">getIdFromUrl</span>(person.url),
+      name: person.name,
+      height: <span class="t">StarwarsMapper</span>.<span class="f">toNumber</span>(person.height),
+      mass: <span class="t">StarwarsMapper</span>.<span class="f">toNumber</span>(person.mass),
+      birthYear: person.birth_year,
+      <span class="c">// ...gender, homeworldUrl, filmUrls</span>
+    };
+  }
+}</div>
+      <div class="callout o">Luke llega con <code>"172"</code> y sale con <code>172</code>. El <code>id</code> lo saco de la URL porque SWAPI no lo manda. Y el <code>replace(',', '')</code> está por Jabba, que pesa <code>"1,358"</code>.</div>
+    </div>
+  </div>
+  <div class="pg"></div>
+</section>
+
+<!-- SW-6 · Servicio -->
+<section class="slide light tight">
+  <div class="spk d1"><div class="av">D</div>Daniel</div>
+  <div class="dhead"><div class="eyebrow">Quién habla con la API</div><h3>El servicio pide los datos y los entrega ya traducidos</h3></div>
+  <div class="cmp">
+    <div>
+      <div class="codehead clase"><iconify-icon icon="mdi:school-outline"></iconify-icon> En clase · gifs-app/services/gifs.service.ts</div>
+      <div class="code sm"><span class="f">searchGifs</span>(query: <span class="t">string</span>) {
+  <span class="k">return this</span>.http.get&lt;<span class="t">GiphyResponse</span>&gt;(
+    <span class="s">`${environment.urlGiphy}/gifs/search/`</span>, {
+    params: {
+      api_key: environment.apiKey,
+      q: query,
+      limit: <span class="n">20</span>
+    }
+  }).pipe(
+    <span class="f">map</span>((res) =&gt; <span class="t">GifMapper</span>.<span class="f">mapGiphyItemsToArrayGif</span>(res.data))
+  )
+}</div>
+      <div class="codehead proy" style="margin-top:12px">environments/environment.ts</div>
+      <div class="code sm"><span class="k">export const</span> environment = {
+  production: <span class="k">true</span>,
+  swapiUrl: <span class="s">'https://swapi.dev/api'</span>
+};</div>
+    </div>
+    <div>
+      <div class="codehead proy"><iconify-icon icon="mdi:rocket-launch-outline"></iconify-icon> services/service_starwars/starwars.service.ts</div>
+      <div class="code sm">@<span class="f">Injectable</span>({ providedIn: <span class="s">'root'</span> })
+<span class="k">export class</span> <span class="t">StarwarsService</span> {
+  <span class="k">private</span> http = <span class="f">inject</span>(<span class="t">HttpClient</span>);
+
+  <span class="f">getCharacters</span>(page: <span class="t">number</span>, search: <span class="t">string</span>)
+    : <span class="t">Observable</span>&lt;<span class="t">CharacterPage</span>&gt; {
+    <span class="k">return this</span>.http.get&lt;<span class="t">SwapiPeopleResponse</span>&gt;(
+      <span class="s">`${environment.swapiUrl}/people/`</span>, {
+      params: {
+        page: page,
+        search: search
+      }
+    }).pipe(
+      <span class="f">map</span>((response) =&gt;
+        <span class="t">StarwarsMapper</span>.<span class="f">mapPeopleResponseToCharacterPage</span>(response))
+    );
+  }
+
+  <span class="f">getCharacter</span>(id: <span class="t">number</span>): <span class="t">Observable</span>&lt;<span class="t">Character</span>&gt; {
+    <span class="k">return this</span>.http.get&lt;<span class="t">SwapiPerson</span>&gt;(
+      <span class="s">`${environment.swapiUrl}/people/${id}/`</span>).pipe(
+      <span class="f">map</span>((person) =&gt; <span class="t">StarwarsMapper</span>.<span class="f">mapPersonToCharacter</span>(person))
+    );
+  }
+
+  <span class="c">// getPlanet(url) y getFilm(url): mismo patrón</span>
+}</div>
+      <div class="callout">Si llamo <code>getCharacters(2, 'sky')</code>, sale la petición <code>/people/?page=2&amp;search=sky</code>. El <code>map</code> traduce por el camino, así la página nunca ve el <code>"172"</code>.</div>
+    </div>
+  </div>
+  <div class="pg"></div>
+</section>
+
+<!-- SW-7 · Página de lista -->
+<section class="slide light tight">
+  <div class="spk d1"><div class="av">D</div>Daniel</div>
+  <div class="dhead"><div class="eyebrow">La pantalla de la lista</div><h3>La página tiene los datos y la tabla solo los pinta</h3></div>
+  <div class="cmp">
+    <div>
+      <div class="codehead proy"><iconify-icon icon="mdi:rocket-launch-outline"></iconify-icon> pages/starwars/starwars.component.ts</div>
+      <div class="code sm"><span class="k">export default class</span> <span class="t">StarwarsComponent</span> {
+  <span class="k">private</span> starwarsService = <span class="f">inject</span>(<span class="t">StarwarsService</span>);
+
+  characters = <span class="f">signal</span>&lt;<span class="t">Character</span>[]&gt;([]);
+  loading = <span class="f">signal</span>(<span class="k">false</span>);
+  page = <span class="f">signal</span>(<span class="n">1</span>);
+  searchText = <span class="f">signal</span>(<span class="s">''</span>);
+  <span class="c">// ...total, hasNext, hasPrevious, error</span>
+
+  <span class="k">constructor</span>() { <span class="k">this</span>.<span class="f">loadCharacters</span>(); }
+
+  <span class="f">loadCharacters</span>() {
+    <span class="k">this</span>.loading.<span class="f">set</span>(<span class="k">true</span>);
+    <span class="k">this</span>.starwarsService.<span class="f">getCharacters</span>(<span class="k">this</span>.page(), <span class="k">this</span>.searchText())
+      .<span class="f">subscribe</span>({
+        next: (characterPage) =&gt; {
+          <span class="k">this</span>.characters.<span class="f">set</span>(characterPage.characters);
+          <span class="k">this</span>.loading.<span class="f">set</span>(<span class="k">false</span>);
+        },
+        error: () =&gt; { <span class="c">/* mensaje de error y loading en false */</span> }
+      });
+  }
+
+  <span class="f">onSearch</span>(text: <span class="t">string</span>) {
+    <span class="k">this</span>.searchText.<span class="f">set</span>(text.trim());
+    <span class="k">this</span>.page.<span class="f">set</span>(<span class="n">1</span>);
+    <span class="k">this</span>.<span class="f">loadCharacters</span>();
+  }
+}</div>
+    </div>
+    <div>
+      <div class="codehead proy">starwars.component.html (fragmento)</div>
+      <div class="code sm">&lt;input
+  <span class="hl">#searchInput</span>
+  <span class="hl">(keyup.enter)</span>=<span class="s">"onSearch(searchInput.value)"</span>
+  placeholder=<span class="s">"Buscar por nombre"</span> /&gt;
+
+&lt;starwars-character-list <span class="hl">[characters]</span>=<span class="s">"characters()"</span>/&gt;
+
+&lt;button (click)=<span class="s">"nextPage()"</span>
+        [disabled]=<span class="s">"!hasNext() || loading()"</span>&gt;Siguiente&lt;/button&gt;</div>
+      <div class="codehead proy" style="margin-top:10px">components/starwars/character-list</div>
+      <div class="code sm"><span class="k">export class</span> <span class="t">CharacterListComponent</span> {
+  characters = <span class="f">input</span>.<span class="f">required</span>&lt;<span class="t">Character</span>[]&gt;();
+}
+
+@for (character of characters(); track character.id) {
+  &lt;td&gt;{{ character.height <span class="hl">??</span> <span class="s">'Desconocida'</span> }}&lt;/td&gt;
+  &lt;a [routerLink]=<span class="s">"['/starwars', character.id]"</span>&gt;Ver detalle&lt;/a&gt;
+}</div>
+      <div class="callout o">El buscador lo hice como el <code>search-page</code> de clase, con <code>#searchInput</code> y Enter. La tabla recibe la lista con <code>input.required</code>, como el <code>character-list</code> de Dragon Ball.</div>
+    </div>
+  </div>
+  <div class="pg"></div>
+</section>
+
+<!-- SW-8 · Detalle: secuencia (archify) -->
+<section class="slide light tight">
+  <div class="spk d1"><div class="av">D</div>Daniel</div>
+  <div class="dhead"><div class="eyebrow">Lo que pasa al dar clic en "Ver detalle"</div><h3>Por Luke hago 6 peticiones: él, su planeta y sus 4 películas</h3></div>
+  <div class="diagram">
+    <iframe src="secuencia-detalle.html" title="Secuencia al abrir el detalle de un personaje"></iframe>
+  </div>
+  <div class="dlink">Si no se ve completo, lo bajo con el ratón o lo abro aparte: <code>presentacion/secuencia-detalle.html</code></div>
+  <div class="pg"></div>
+</section>
+
+<!-- SW-9 · Detalle: código -->
+<section class="slide light tight">
+  <div class="spk d1"><div class="av">D</div>Daniel</div>
+  <div class="dhead"><div class="eyebrow">La ficha del personaje</div><h3>La URL me da el id y con eso pido todo lo demás</h3></div>
+  <div class="cmp">
+    <div>
+      <div class="codehead proy"><iconify-icon icon="mdi:rocket-launch-outline"></iconify-icon> app.routes.ts</div>
+      <div class="code sm">{
+  path: <span class="s">'starwars/:id'</span>,
+  <span class="f">loadComponent</span>: () =&gt;
+    <span class="k">import</span>(<span class="s">'./pages/starwars-detail/starwars-detail.component'</span>)
+}</div>
+      <div class="codehead proy" style="margin-top:10px">starwars-detail.component.ts (fragmento)</div>
+      <div class="code sm"><span class="k">private</span> route = <span class="f">inject</span>(<span class="t">ActivatedRoute</span>);
+
+<span class="k">constructor</span>() {
+  <span class="c">// /starwars/1 -&gt; params['id'] = '1'</span>
+  <span class="k">this</span>.route.params.<span class="f">subscribe</span>((params) =&gt; {
+    <span class="k">this</span>.<span class="f">loadCharacter</span>(<span class="t">Number</span>(params[<span class="s">'id'</span>]));
+  });
+}</div>
+      <div class="callout o">Leer el <code>:id</code> de la URL lo saqué del <code>history/:query</code> de gifs-app.</div>
+    </div>
+    <div>
+      <div class="codehead proy">starwars-detail.component.ts (fragmento)</div>
+      <div class="code sm"><span class="f">loadCharacter</span>(id: <span class="t">number</span>) {
+  <span class="k">this</span>.starwarsService.<span class="f">getCharacter</span>(id).<span class="f">subscribe</span>({
+    next: (character) =&gt; {
+      <span class="k">this</span>.character.<span class="f">set</span>(character);
+      <span class="k">this</span>.loading.<span class="f">set</span>(<span class="k">false</span>);
+      <span class="k">this</span>.<span class="f">loadPlanet</span>(character.homeworldUrl);
+      <span class="k">this</span>.<span class="f">loadFilms</span>(character.filmUrls);
+    },
+    error: () =&gt; {
+      <span class="k">this</span>.error.<span class="f">set</span>(<span class="s">'No se encontró el personaje.'</span>);
+      <span class="k">this</span>.loading.<span class="f">set</span>(<span class="k">false</span>);
+    }
+  });
+}
+
+<span class="f">loadFilms</span>(urls: <span class="t">string</span>[]) {
+  <span class="k">for</span> (<span class="k">const</span> url <span class="k">of</span> urls) {
+    <span class="k">this</span>.starwarsService.<span class="f">getFilm</span>(url).<span class="f">subscribe</span>((film) =&gt; {
+      <span class="c">// llegan en cualquier orden: se ordenan por episodio</span>
+      <span class="k">this</span>.films.<span class="f">update</span>((list) =&gt;
+        [...list, film].<span class="f">sort</span>((a, b) =&gt; a.episode - b.episode));
+    });
+  }
+}</div>
+      <div class="callout">Dos detalles: las películas pueden llegar en cualquier orden, por eso el <code>sort</code>. Y el 17 no existe en SWAPI, así que <code>/starwars/17</code> cae en <code>error</code>.</div>
+    </div>
+  </div>
+  <div class="pg"></div>
+</section>
+
+<!-- SW-10 · Pruebas -->
+<section class="slide light tight">
+  <div class="spk d1"><div class="av">D</div>Daniel</div>
+  <div class="dhead"><div class="eyebrow">¿Y cómo sé que funciona?</div><h3>Pruebas que ni siquiera necesitan internet</h3></div>
+  <div class="cmp">
+    <div>
+      <div class="codehead proy"><iconify-icon icon="mdi:rocket-launch-outline"></iconify-icon> starwars.service.spec.ts (fragmento)</div>
+      <div class="code sm">providers: [
+  <span class="f">provideHttpClient</span>(),
+  <span class="f">provideHttpClientTesting</span>()
+]
+
+service.<span class="f">getCharacters</span>(<span class="n">2</span>, <span class="s">'sky'</span>).<span class="f">subscribe</span>((characterPage) =&gt; {
+  result = characterPage;
+});
+
+<span class="k">const</span> request = httpMock.<span class="f">expectOne</span>((req) =&gt; req.url.includes(<span class="s">'/people/'</span>));
+<span class="f">expect</span>(request.request.params.get(<span class="s">'page'</span>)).toBe(<span class="s">'2'</span>);
+<span class="f">expect</span>(request.request.params.get(<span class="s">'search'</span>)).toBe(<span class="s">'sky'</span>);
+
+request.<span class="f">flush</span>({ count: <span class="n">11</span>, next: <span class="k">null</span>, results: [ <span class="c">/* Luke */</span> ] });
+
+<span class="f">expect</span>(result?.total).toBe(<span class="n">11</span>);
+<span class="f">expect</span>(result?.characters[<span class="n">0</span>].height).toBe(<span class="n">172</span>);</div>
+      <div class="callout"><code>expectOne</code> mira qué pedí y <code>flush</code> le responde con un Luke de mentiras. Si el mapper convierte bien, la prueba pasa.</div>
+    </div>
+    <div>
+      <table class="ktable sm">
+        <thead><tr><th>Archivo</th><th>Qué revisa</th><th></th></tr></thead>
+        <tbody>
+          <tr><td><code>starwars.mapper.spec.ts</code></td><td><code>"172"</code> → 172, <code>"1,358"</code> → 1358, <code>"unknown"</code> → null, URL → id</td><td class="ok">3 ✔</td></tr>
+          <tr><td><code>starwars.service.spec.ts</code></td><td>envía <code>page</code> y <code>search</code> y devuelve datos convertidos</td><td class="ok">2 ✔</td></tr>
+          <tr><td><code>starwars.component.spec.ts</code></td><td>"Luke Skywalker" aparece en la tabla</td><td class="ok">2 ✔</td></tr>
+          <tr><td><code>app.component.spec.ts</code></td><td>se crea y el menú tiene 3 enlaces</td><td class="ok">3 ✔</td></tr>
+        </tbody>
+      </table>
+      <div class="code sm" style="margin-top:12px">npx ng test --watch=false</div>
+    </div>
+  </div>
+  <div class="pg"></div>
+</section>
+
+<!-- SW-11 · Temas del curso -->
+<section class="slide paper tight">
+  <div class="spk d1"><div class="av">D</div>Daniel</div>
+  <div class="dhead"><div class="eyebrow">Lo que vimos en clase</div><h3>Dónde usé cada tema</h3></div>
+  <table class="ktable sm">
+    <thead><tr><th>Tema</th><th>Dónde lo vimos</th><th>Dónde lo usé</th></tr></thead>
+    <tbody>
+      <tr><td>Interfaces y tipos (<code>number | null</code>)</td><td>Semana 1 · taller de vehículos</td><td><code>interfaces/swapi.interface.ts</code> · <code>starwars.interface.ts</code></td></tr>
+      <tr><td>Clases con métodos <code>static</code> · mapper</td><td>gifs-app · <code>GifMapper</code></td><td><code>mappers/starwars.mapper.ts</code></td></tr>
+      <tr><td>Operador <code>??</code></td><td>Semana 1 · encadenamiento opcional</td><td><code>{{ character.height ?? 'Desconocida' }}</code></td></tr>
+      <tr><td>Servicio con <code>inject</code> y <code>HttpClient</code></td><td>gifs-app · <code>GifsService</code></td><td><code>StarwarsService</code></td></tr>
+      <tr><td><code>Observable</code> · <code>pipe(map)</code> · <code>subscribe</code></td><td>gifs-app · <code>searchGifs</code></td><td><code>getCharacters</code> · <code>loadCharacters</code></td></tr>
+      <tr><td>Environments</td><td>gifs-app · <code>environment.ts</code></td><td><code>swapiUrl</code></td></tr>
+      <tr><td><code>signal</code> · <code>set</code> · <code>update</code></td><td>Semana 2 · counter, car</td><td>páginas de lista y detalle</td></tr>
+      <tr><td><code>input.required</code></td><td>Semana 2 · <code>dragonball-character-list</code></td><td><code>CharacterListComponent</code></td></tr>
+      <tr><td><code>@if</code> · <code>@else</code> · <code>@for</code></td><td>Semana 2 · dragonball</td><td>todas las plantillas</td></tr>
+      <tr><td><code>#ref</code> y <code>(keyup.enter)</code></td><td>gifs-app · <code>search-page</code></td><td>buscador de personajes</td></tr>
+      <tr><td><code>loadComponent</code> · <code>:param</code> · <code>ActivatedRoute</code></td><td>gifs-app · <code>history/:query</code></td><td><code>starwars/:id</code></td></tr>
+      <tr><td>Pruebas con <code>provideHttpClientTesting</code></td><td>gifs-app · <code>gifs.services.spec.ts</code></td><td><code>starwars.service.spec.ts</code></td></tr>
+    </tbody>
+  </table>
+  <div class="pg"></div>
+</section>
+
+<!-- SW-12 · Demo -->
+<section class="slide dark tight">
+  <div class="spk d1"><div class="av">D</div>Daniel</div>
+  <div class="dhead"><div class="eyebrow">Ahora sí, en vivo</div><h3 style="color:var(--light)">Lo que les voy a mostrar</h3></div>
+  <div class="twocol">
+    <ul class="vlist">
+      <li><iconify-icon icon="mdi:numeric-1-circle" style="color:var(--star)"></iconify-icon><div><b>Abro /starwars.</b> Aparece "Cargando..." y luego los primeros 10 de 82.</div></li>
+      <li><iconify-icon icon="mdi:numeric-2-circle" style="color:var(--star)"></iconify-icon><div><b>Busco <code>sky</code>.</b> Quedan 3 y los dos botones se apagan, porque no hay más páginas.</div></li>
+      <li><iconify-icon icon="mdi:numeric-3-circle" style="color:var(--star)"></iconify-icon><div><b>Me voy hasta la página 9.</b> Ahí "Siguiente" ya no deja avanzar.</div></li>
+    </ul>
+    <ul class="vlist">
+      <li><iconify-icon icon="mdi:numeric-4-circle" style="color:var(--star)"></iconify-icon><div><b>Entro a Luke.</b> La URL cambia a <code>/starwars/1</code> y salen Tatooine y sus 4 películas en orden.</div></li>
+      <li><iconify-icon icon="mdi:numeric-5-circle" style="color:var(--star)"></iconify-icon><div><b>Escribo <code>/starwars/17</code> a mano.</b> Ese no existe, así que sale el mensaje de error.</div></li>
+      <li><iconify-icon icon="mdi:numeric-6-circle" style="color:var(--star)"></iconify-icon><div><b>Abro F12, pestaña Network.</b> Para que vean las 6 peticiones que salen hacia <code>swapi.dev</code>.</div></li>
+    </ul>
+  </div>
+  <div class="pg"></div>
+</section>
+
+<!-- SW-13 · Lo que me llevo -->
+<section class="slide sw">
+  <div class="spk d1"><div class="av">D</div>Daniel</div>
+  <div class="eyebrow anim">Para cerrar mi parte</div>
+  <div class="h2 anim" style="margin-bottom:26px">Lo que me llevo de esto</div>
+  <ul class="vlist anim">
+    <li><iconify-icon icon="mdi:numeric-1-circle" style="color:var(--star)"></iconify-icon><div><b>Las APIs no mandan los datos como uno los necesita.</b> Textos en vez de números, "unknown", comas... por eso existe el mapper.</div></li>
+    <li><iconify-icon icon="mdi:numeric-2-circle" style="color:var(--star)"></iconify-icon><div><b>Cada archivo con una sola tarea.</b> Así es más fácil encontrar dónde está cada cosa y explicarla.</div></li>
+    <li><iconify-icon icon="mdi:numeric-3-circle" style="color:var(--star)"></iconify-icon><div><b>Un Observable no hace nada solo.</b> La petición sale cuando alguien se suscribe.</div></li>
+  </ul>
+  <div class="lead anim" style="margin-top:30px">Y ahora le paso la palabra a Daksson con la NASA.</div>
+  <div class="pg"></div>
+</section>
+
+<!-- ═══════════════ PARTE STAR WARS · FIN ═══════════════ -->
+
+<!-- ═══════════════ PARTE NASA · INICIO ═══════════════ -->
+<!-- NASA-1 · Portada de la parte -->
+<section class="slide nasa">
+  <div class="spk d2"><div class="av">K</div>Daksson</div>
+  <div class="eyebrow anim">Mi parte</div>
+  <div class="display anim">La NASA,<br><span class="red">un día a la vez.</span></div>
+  <div class="lead anim" style="margin-top:22px">Yo trabajé con la API de la NASA: la foto astronómica de cualquier día desde 1995 y los asteroides que pasan cerca de la Tierra.</div>
+  <div class="pg"></div>
+</section>
+
+<!-- NASA-2 · Lo que se ve -->
+<section class="slide light tight">
+  <div class="spk d2"><div class="av">K</div>Daksson</div>
+  <div class="dhead"><div class="eyebrow">Primero, lo que se ve</div><h3>Dos páginas: la foto del día y los asteroides</h3></div>
+  <div class="twocol">
+    <div>
+      <ul class="vlist nasa-icons">
+        <li><iconify-icon icon="mdi:image-outline"></iconify-icon><div><b>La foto del día.</b> Al entrar sale la última que publicó la NASA. Con el calendario puedo ver la de cualquier día, desde la primera, del 16 de junio de 1995.</div></li>
+        <li><iconify-icon icon="mdi:video-outline"></iconify-icon><div><b>Días con video.</b> Algunos días la NASA publica un video en vez de foto; ahí muestro un enlace para verlo.</div></li>
+        <li><iconify-icon icon="mdi:meteor"></iconify-icon><div><b>Los asteroides.</b> Para un día, cuántos pasan cerca, cuántos son peligrosos y cuál pasa más cerca, con la tabla completa.</div></li>
+        <li><iconify-icon icon="mdi:test-tube"></iconify-icon><div><b>Y pruebas</b> del mapper, del servicio y de la página.</div></li>
+      </ul>
+    </div>
+    <div>
+      <div class="subt">Lo que le pido a api.nasa.gov (con clave)</div>
+      <table class="ktable sm">
+        <thead><tr><th>Petición</th><th>Para qué la uso</th></tr></thead>
+        <tbody>
+          <tr><td><code>/planetary/apod?date=2026-09-15</code></td><td>la foto de un día (APOD)</td></tr>
+          <tr><td><code>/neo/rest/v1/feed?start_date=...&amp;end_date=...</code></td><td>los asteroides de un día (NeoWs)</td></tr>
+        </tbody>
+      </table>
+      <div class="callout o">Las dos peticiones llevan <code>api_key</code>. La clave es gratis, pero es personal: con la de prueba (<code>DEMO_KEY</code>) solo me dejaba 10 peticiones por hora.</div>
+    </div>
+  </div>
+  <div class="pg"></div>
+</section>
+
+<!-- NASA-3 · Estructura -->
+<section class="slide paper tight">
+  <div class="spk d2"><div class="av">K</div>Daksson</div>
+  <div class="dhead"><div class="eyebrow">Cómo lo organicé</div><h3>La misma forma que Star Wars, para que el proyecto se lea igual</h3></div>
+  <div class="cmp w">
+    <div class="tree"><b>src/</b>
+├── <b>environments/</b>              <i>nasaUrl · nasaApiKey</i>
+└── <b>app/</b>
+    ├── app.routes.ts               <i>/nasa · /nasa/asteroides</i>
+    ├── <b>interfaces/</b>
+    │   ├── nasa-api.interface.ts   <i>lo que llega</i>
+    │   └── nasa.interface.ts       <i>lo que uso</i>
+    ├── <b>mappers/</b>
+    │   └── nasa.mapper.ts
+    ├── <b>services/service_nasa/</b>
+    │   └── nasa.service.ts
+    ├── <b>utils/</b>
+    │   └── date.util.ts            <i>la fecha de hoy</i>
+    ├── <b>components/nasa/</b>
+    │   ├── nasa-menu/              <i>menú de las 2 páginas</i>
+    │   └── asteroid-list/          <i>la tabla</i>
+    └── <b>pages/</b>
+        ├── nasa/                   <i>foto del día</i>
+        └── nasa-asteroids/         <i>asteroides</i></div>
+    <div>
+      <table class="ktable sm">
+        <thead><tr><th>Carpeta</th><th>Qué guarda</th></tr></thead>
+        <tbody>
+          <tr><td><b>environments</b></td><td>La dirección de la API y mi clave.</td></tr>
+          <tr><td><b>interfaces</b></td><td>Cómo llegan los datos y cómo los quiero yo.</td></tr>
+          <tr><td><b>mappers</b></td><td>El traductor de una forma a la otra.</td></tr>
+          <tr><td><b>services</b></td><td>El único que habla con la NASA.</td></tr>
+          <tr><td><b>utils</b></td><td>Una función que usan las dos páginas.</td></tr>
+          <tr><td><b>components</b></td><td>El menú y la tabla: solo muestran.</td></tr>
+          <tr><td><b>pages</b></td><td>Las pantallas: guardan los datos.</td></tr>
+        </tbody>
+      </table>
+      <div class="callout">Lo único nuevo frente a Star Wars es <code>utils</code>: la fecha de hoy la necesitaban las dos páginas, así que la dejé en un solo sitio.</div>
+    </div>
+  </div>
+  <div class="pg"></div>
+</section>
+
+<!-- NASA-4 · Vocabulario -->
+<section class="slide paper tight">
+  <div class="spk d2"><div class="av">K</div>Daksson</div>
+  <div class="dhead"><div class="eyebrow">Palabras nuevas de mi parte</div><h3>Además de las que ya explicó Daniel</h3></div>
+  <div class="twocol" style="gap:20px">
+    <div>
+      <div class="subt">De la API y de TypeScript</div>
+      <table class="ktable sm voc">
+        <tbody>
+          <tr><td><b>API key</b></td><td>Mi clave personal. La NASA la pide en cada petición como <code>api_key</code>.</td></tr>
+          <tr><td><b>APOD</b></td><td>Astronomy Picture of the Day: la foto astronómica del día.</td></tr>
+          <tr><td><b>NeoWs</b></td><td>El servicio de la NASA de objetos que pasan cerca de la Tierra.</td></tr>
+          <tr><td><b>Propiedad opcional <code>?</code></b></td><td>Un campo que puede no venir, como <code>copyright?</code>.</td></tr>
+          <tr><td><b><code>?.</code></b></td><td>"Si esto no existe, no sigas y no falles".</td></tr>
+          <tr><td><b><code>??</code></b></td><td>"Si lo de la izquierda no vino, usa lo de la derecha".</td></tr>
+          <tr><td><b>Desestructuración</b></td><td>Sacar varios campos de un objeto en una sola línea.</td></tr>
+          <tr><td><b>Record</b></td><td>Un objeto cuyas claves no conozco de antemano, como las fechas.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div>
+      <div class="subt">De Angular</div>
+      <table class="ktable sm voc">
+        <tbody>
+          <tr><td><b>computed</b></td><td>Un valor que se recalcula solo cuando cambia un signal, como el total de peligrosos.</td></tr>
+          <tr><td><b>routerLinkActive</b></td><td>Le pone una clase al enlace de la página donde estoy, para resaltarlo.</td></tr>
+          <tr><td><b>$index</b></td><td>El número de la vuelta dentro de un <code>@for</code>. Lo uso para numerar la tabla.</td></tr>
+          <tr><td><b>[class.hazardous]</b></td><td>Pone la clase CSS solo si la condición se cumple: las filas peligrosas en rojo.</td></tr>
+          <tr><td><b>Pipe <code>number</code></b></td><td>Formatea un número en la plantilla: <code>13284379</code> se ve <code>13,284,379</code>.</td></tr>
+          <tr><td><b>(change)</b></td><td>Evento que salta cuando eligen otra fecha en el calendario.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="pg"></div>
+</section>
+
+<!-- NASA-5 · Arquitectura (archify) -->
+<section class="slide light tight">
+  <div class="spk d2"><div class="av">K</div>Daksson</div>
+  <div class="dhead"><div class="eyebrow">El mapa</div><h3>Cómo se conectan las piezas de la NASA</h3></div>
+  <div class="diagram">
+    <iframe src="arquitectura-nasa.html" title="Arquitectura de la parte de la NASA"></iframe>
+  </div>
+  <div class="dlink">La caja roja es la configuración con la clave: el servicio la lee antes de cada petición. Archivo: <code>presentacion/arquitectura-nasa.html</code></div>
+  <div class="pg"></div>
+</section>
+
+<!-- NASA-6 · APOD: datos que no siempre vienen -->
+<section class="slide light tight">
+  <div class="spk d2"><div class="av">K</div>Daksson</div>
+  <div class="dhead"><div class="eyebrow">El primer problema</div><h3>La NASA no siempre manda todos los campos</h3></div>
+  <div class="cmp">
+    <div>
+      <div class="codehead clase"><iconify-icon icon="mdi:school-outline"></iconify-icon> En clase · 08-encadenamiento-opcional.ts</div>
+      <div class="code sm"><span class="k">export interface</span> <span class="t">Pasajero</span> {
+    nombre: <span class="t">string</span>;
+    hijos?: <span class="t">string</span>[];
+}
+
+<span class="k">const</span> <span class="f">mostrarHijos</span> = (pasajero: <span class="t">Pasajero</span>) =&gt; {
+    <span class="k">const</span> cantidadHijos = pasajero.hijos<span class="hl">?.</span>length <span class="hl">??</span> <span class="n">0</span>
+    console.<span class="f">log</span>(cantidadHijos);
+}</div>
+      <div class="codehead proy" style="margin-top:12px">interfaces/nasa-api.interface.ts</div>
+      <div class="code sm"><span class="k">export interface</span> <span class="t">NasaApodResponse</span> {
+  date: <span class="t">string</span>;
+  title: <span class="t">string</span>;
+  explanation: <span class="t">string</span>;
+  media_type: <span class="t">string</span>;    <span class="c">// "image", "video" u "other"</span>
+  url?: <span class="t">string</span>;          <span class="c">// no siempre viene</span>
+  hdurl?: <span class="t">string</span>;        <span class="c">// solo en imágenes</span>
+  copyright?: <span class="t">string</span>;    <span class="c">// no viene si es de dominio público</span>
+}</div>
+    </div>
+    <div>
+      <div class="codehead proy"><iconify-icon icon="mdi:rocket-launch-outline"></iconify-icon> mappers/nasa.mapper.ts</div>
+      <div class="code sm"><span class="k">static</span> <span class="f">mapApodResponseToApod</span>(response: <span class="t">NasaApodResponse</span>): <span class="t">Apod</span> {
+  <span class="k">return</span> {
+    date: response.date,
+    title: response.title,
+    explanation: response.explanation,
+    mediaType: <span class="t">NasaMapper</span>.<span class="f">toMediaType</span>(response.media_type),
+    url: response.url <span class="hl">??</span> <span class="k">null</span>,
+    hdUrl: response.hdurl <span class="hl">??</span> <span class="k">null</span>,
+    <span class="c">// a veces trae saltos de línea y espacios de más</span>
+    copyright: response.copyright<span class="hl">?.</span>trim() <span class="hl">??</span> <span class="s">'Dominio público'</span>
+  };
+}</div>
+      <div class="callout o">Revisé las fotos del 1 de agosto al 16 de septiembre: de 47 días, <b>16 no traían autor</b>, 10 lo traían con saltos de línea y 6 eran video. Por eso cada campo tiene su plan B.</div>
+    </div>
+  </div>
+  <div class="pg"></div>
+</section>
+
+<!-- NASA-7 · Asteroides: desestructuración y orden -->
+<section class="slide light tight">
+  <div class="spk d2"><div class="av">K</div>Daksson</div>
+  <div class="dhead"><div class="eyebrow">El segundo problema</div><h3>Los asteroides vienen agrupados por fecha y con números como texto</h3></div>
+  <div class="cmp">
+    <div>
+      <div class="codehead clase"><iconify-icon icon="mdi:school-outline"></iconify-icon> En clase · 04-desestructurador-objectos.ts</div>
+      <div class="code sm"><span class="k">const</span> { cancion, duracionCancion, detalle:{ autor } } = reproductorAudio;</div>
+      <div class="codehead proy" style="margin-top:12px">Así llega de la NASA (15 de septiembre)</div>
+      <div class="code sm">{
+  <span class="s">"element_count"</span>: <span class="n">7</span>,
+  <span class="s">"near_earth_objects"</span>: {
+    <span class="s">"2026-09-15"</span>: [                <span class="c">// la clave es la fecha</span>
+      {
+        <span class="s">"name"</span>: <span class="s">"429584 (2011 EU29)"</span>,
+        <span class="s">"is_potentially_hazardous_asteroid"</span>: <span class="k">true</span>,
+        <span class="s">"estimated_diameter"</span>: { <span class="s">"meters"</span>: { ... } },
+        <span class="s">"close_approach_data"</span>: [{
+          <span class="s">"relative_velocity"</span>: { <span class="s">"kilometers_per_hour"</span>: <span class="s">"75622.52..."</span> },
+          <span class="s">"miss_distance"</span>: { <span class="s">"kilometers"</span>: <span class="s">"20160851.13..."</span> }
+        }]
+      }, ...</div>
+    </div>
+    <div>
+      <div class="codehead proy"><iconify-icon icon="mdi:rocket-launch-outline"></iconify-icon> mappers/nasa.mapper.ts</div>
+      <div class="code sm"><span class="k">static</span> <span class="f">mapNasaAsteroidToAsteroid</span>(asteroid: <span class="t">NasaAsteroid</span>): <span class="t">Asteroid</span> {
+  <span class="c">// la lista de acercamientos puede venir vacía</span>
+  <span class="k">const</span> approach: <span class="t">NasaCloseApproach</span> | <span class="k">undefined</span> =
+    asteroid.close_approach_data[<span class="n">0</span>];
+  <span class="k">const</span> <span class="hl">{ estimated_diameter_min, estimated_diameter_max }</span> =
+    asteroid.estimated_diameter.meters;
+
+  <span class="k">return</span> {
+    id: asteroid.id,
+    name: asteroid.name,
+    hazardous: asteroid.is_potentially_hazardous_asteroid,
+    diameterMinMeters: Math.<span class="f">round</span>(estimated_diameter_min),
+    diameterMaxMeters: Math.<span class="f">round</span>(estimated_diameter_max),
+    speedKmH: <span class="t">NasaMapper</span>.<span class="f">toRoundedNumber</span>(
+      approach<span class="hl">?.</span>relative_velocity.kilometers_per_hour),
+    distanceKm: <span class="t">NasaMapper</span>.<span class="f">toRoundedNumber</span>(
+      approach<span class="hl">?.</span>miss_distance.kilometers)
+  };
+}
+
+<span class="k">static</span> <span class="f">mapFeedToAsteroids</span>(response: <span class="t">NasaNeoFeedResponse</span>,
+  date: <span class="t">string</span>): <span class="t">Asteroid</span>[] {
+  <span class="k">const</span> list = response.near_earth_objects[date] <span class="hl">??</span> [];
+  <span class="k">return</span> list
+    .<span class="f">map</span>(<span class="t">NasaMapper</span>.<span class="f">mapNasaAsteroidToAsteroid</span>)
+    .<span class="f">sort</span>((a, b) =&gt; (a.distanceKm <span class="hl">??</span> Infinity) - (b.distanceKm <span class="hl">??</span> Infinity));
+}</div>
+      <div class="callout o">El <code>sort</code> deja primero el más cercano. Si alguno no trae distancia, <code>?? Infinity</code> lo manda al final.</div>
+    </div>
+  </div>
+  <div class="pg"></div>
+</section>
+
+<!-- NASA-8 · Servicio -->
+<section class="slide light tight">
+  <div class="spk d2"><div class="av">K</div>Daksson</div>
+  <div class="dhead"><div class="eyebrow">Quién habla con la NASA</div><h3>Dos métodos, y la fecha de la foto es opcional</h3></div>
+  <div class="cmp">
+    <div>
+      <div class="codehead proy"><iconify-icon icon="mdi:rocket-launch-outline"></iconify-icon> services/service_nasa/nasa.service.ts</div>
+      <div class="code sm"><span class="c">// Sin fecha, la NASA responde con la última foto publicada</span>
+<span class="f">getApod</span>(date<span class="hl">?</span>: <span class="t">string</span>): <span class="t">Observable</span>&lt;<span class="t">Apod</span>&gt; {
+  <span class="k">const</span> params: <span class="t">Record</span>&lt;<span class="t">string</span>, <span class="t">string</span>&gt; = {
+    api_key: environment.nasaApiKey
+  };
+  <span class="k">if</span> (date) {
+    params[<span class="s">'date'</span>] = date;
+  }
+
+  <span class="k">return this</span>.http.get&lt;<span class="t">NasaApodResponse</span>&gt;(
+    <span class="s">`${environment.nasaUrl}/planetary/apod`</span>, { params }).pipe(
+    <span class="f">map</span>((response) =&gt; <span class="t">NasaMapper</span>.<span class="f">mapApodResponseToApod</span>(response))
+  );
+}
+
+<span class="f">getAsteroids</span>(date: <span class="t">string</span>): <span class="t">Observable</span>&lt;<span class="t">Asteroid</span>[]&gt; {
+  <span class="k">return this</span>.http.get&lt;<span class="t">NasaNeoFeedResponse</span>&gt;(
+    <span class="s">`${environment.nasaUrl}/neo/rest/v1/feed`</span>, {
+    params: {
+      start_date: date,
+      end_date: date,
+      api_key: environment.nasaApiKey
+    }
+  }).pipe(
+    <span class="f">map</span>((response) =&gt; <span class="t">NasaMapper</span>.<span class="f">mapFeedToAsteroids</span>(response, date))
+  );
+}</div>
+    </div>
+    <div>
+      <div class="codehead proy">environments/environment.ts</div>
+      <div class="code sm"><span class="k">export const</span> environment = {
+  production: <span class="k">true</span>,
+
+  <span class="c">// URLs</span>
+  swapiUrl: <span class="s">'https://swapi.dev/api'</span>,
+  nasaUrl: <span class="s">'https://api.nasa.gov'</span>,
+
+  <span class="c">// ApiKeys</span>
+  nasaApiKey: <span class="s">'...'</span>
+};</div>
+      <div class="callout">Igual que en gifs-app: la URL y la clave viven en <code>environment</code> y el servicio las lee de ahí.</div>
+      <div class="callout o">En los asteroides pido un solo día para que la tabla sea corta; la NASA permitiría hasta 7. Por eso <code>start_date</code> y <code>end_date</code> son la misma fecha.</div>
+    </div>
+  </div>
+  <div class="pg"></div>
+</section>
+
+<!-- NASA-9 · Página de la foto -->
+<section class="slide light tight">
+  <div class="spk d2"><div class="av">K</div>Daksson</div>
+  <div class="dhead"><div class="eyebrow">La pantalla de la foto</div><h3>Un calendario y tres casos: foto, video o nada</h3></div>
+  <div class="cmp">
+    <div>
+      <div class="codehead proy"><iconify-icon icon="mdi:rocket-launch-outline"></iconify-icon> pages/nasa/nasa.component.ts (fragmento)</div>
+      <div class="code sm">apod = <span class="f">signal</span>&lt;<span class="t">Apod</span> | <span class="k">null</span>&gt;(<span class="k">null</span>);
+loading = <span class="f">signal</span>(<span class="k">false</span>);
+today = <span class="f">getTodayDate</span>();
+
+<span class="k">constructor</span>() {
+  <span class="c">// Sin fecha: la NASA devuelve la última foto publicada</span>
+  <span class="k">this</span>.<span class="f">loadApod</span>();
+}
+
+<span class="f">onDateChange</span>(date: <span class="t">string</span>) {
+  <span class="k">if</span> (date) {
+    <span class="k">this</span>.<span class="f">loadApod</span>(date);
+  }
+}</div>
+      <div class="codehead proy" style="margin-top:10px">utils/date.util.ts</div>
+      <div class="code sm"><span class="k">export const</span> <span class="f">getTodayDate</span> = (): <span class="t">string</span> =&gt; {
+  <span class="k">const</span> today = <span class="k">new</span> <span class="t">Date</span>();
+  <span class="k">const</span> year = today.<span class="f">getFullYear</span>();
+  <span class="k">const</span> month = <span class="t">String</span>(today.<span class="f">getMonth</span>() + <span class="n">1</span>).<span class="f">padStart</span>(<span class="n">2</span>, <span class="s">'0'</span>);
+  <span class="k">const</span> day = <span class="t">String</span>(today.<span class="f">getDate</span>()).<span class="f">padStart</span>(<span class="n">2</span>, <span class="s">'0'</span>);
+  <span class="k">return</span> <span class="s">`${year}-${month}-${day}`</span>;
+};</div>
+      <div class="callout o">No usé <code>toISOString()</code>: da la fecha en hora UTC, y en Colombia después de las 7 p. m. ya sería mañana.</div>
+    </div>
+    <div>
+      <div class="codehead proy">nasa.component.html (fragmento)</div>
+      <div class="code sm">&lt;input <span class="hl">#dateInput</span> type=<span class="s">"date"</span>
+  min=<span class="s">"1995-06-16"</span> [max]=<span class="s">"today"</span>
+  <span class="hl">(change)</span>=<span class="s">"onDateChange(dateInput.value)"</span> /&gt;
+
+@if (apod(); as apod) {
+  @if (apod.mediaType === <span class="s">'image'</span> &amp;&amp; apod.url) {
+    &lt;a [href]=<span class="s">"apod.hdUrl ?? apod.url"</span> target=<span class="s">"_blank"</span>&gt;
+      &lt;img [src]=<span class="s">"apod.url"</span> [alt]=<span class="s">"apod.title"</span> /&gt;
+    &lt;/a&gt;
+  } @else if (apod.url) {
+    &lt;a [href]=<span class="s">"apod.url"</span> target=<span class="s">"_blank"</span>&gt;
+      Este día la NASA publicó un video: verlo aquí&lt;/a&gt;
+  } @else {
+    &lt;p&gt;Este día no tiene una imagen para mostrar.&lt;/p&gt;
+  }
+  &lt;h2&gt;{{ apod.title }}&lt;/h2&gt;
+  &lt;p&gt;{{ apod.date }} · {{ apod.copyright }}&lt;/p&gt;
+}</div>
+      <div class="callout">El <code>[max]="today"</code> no deja elegir días que todavía no existen, y <code>min</code> es el día de la primera foto.</div>
+    </div>
+  </div>
+  <div class="pg"></div>
+</section>
+
+<!-- NASA-10 · Página de asteroides -->
+<section class="slide light tight">
+  <div class="spk d2"><div class="av">K</div>Daksson</div>
+  <div class="dhead"><div class="eyebrow">La pantalla de los asteroides</div><h3>El resumen se calcula solo con <code>computed</code></h3></div>
+  <div class="cmp">
+    <div>
+      <div class="codehead clase"><iconify-icon icon="mdi:school-outline"></iconify-icon> En clase · character-list.component.html</div>
+      <div class="code sm">@for(character of characters(); track character.id; <span class="hl">let i = $index</span>){
+  &lt;span&gt;{{ i + 1 }} - {{ character.name }}&lt;/span&gt;
+  &lt;strong <span class="hl">[class.text-danger]</span>=<span class="s">"character.power &gt; 8000"</span>&gt;
+}</div>
+      <div class="codehead proy" style="margin-top:12px"><iconify-icon icon="mdi:rocket-launch-outline"></iconify-icon> pages/nasa-asteroids/nasa-asteroids.component.ts</div>
+      <div class="code sm">asteroids = <span class="f">signal</span>&lt;<span class="t">Asteroid</span>[]&gt;([]);
+date = <span class="f">signal</span>(<span class="f">getTodayDate</span>());
+
+<span class="c">// Se recalculan solos cada vez que cambia la lista</span>
+hazardousCount = <span class="f">computed</span>(() =&gt;
+  <span class="k">this</span>.asteroids().<span class="f">filter</span>((asteroid) =&gt; asteroid.hazardous).length);
+closest = <span class="f">computed</span>&lt;<span class="t">Asteroid</span> | <span class="k">undefined</span>&gt;(() =&gt; <span class="k">this</span>.asteroids()[<span class="n">0</span>]);</div>
+      <div class="callout o">Nunca actualizo el contador a mano: cuando llega una lista nueva con <code>asteroids.set(...)</code>, <code>hazardousCount</code> y <code>closest</code> cambian solos.</div>
+    </div>
+    <div>
+      <div class="codehead proy">components/nasa/asteroid-list (fragmento)</div>
+      <div class="code sm">asteroids = <span class="f">input</span>.<span class="f">required</span>&lt;<span class="t">Asteroid</span>[]&gt;();
+
+@for (asteroid of asteroids(); track asteroid.id; <span class="hl">let i = $index</span>) {
+  &lt;tr <span class="hl">[class.hazardous]</span>=<span class="s">"asteroid.hazardous"</span>&gt;
+    &lt;td&gt;{{ i + 1 }}&lt;/td&gt;
+    &lt;td&gt;{{ asteroid.name }}&lt;/td&gt;
+    &lt;td&gt;
+      @if (asteroid.distanceKm !== <span class="k">null</span>) {
+        {{ asteroid.distanceKm <span class="hl">| number</span> }}
+      } @else {
+        Sin dato
+      }
+    &lt;/td&gt;
+  &lt;/tr&gt;
+}</div>
+      <div class="codehead proy" style="margin-top:10px">nasa-menu.component.html</div>
+      <div class="code sm">&lt;a routerLink=<span class="s">"/nasa"</span> <span class="hl">routerLinkActive</span>=<span class="s">"active"</span>
+   [routerLinkActiveOptions]=<span class="s">"{ exact: true }"</span>&gt;Foto del día&lt;/a&gt;
+&lt;a routerLink=<span class="s">"/nasa/asteroides"</span> <span class="hl">routerLinkActive</span>=<span class="s">"active"</span>&gt;
+  Asteroides cercanos&lt;/a&gt;</div>
+    </div>
+  </div>
+  <div class="pg"></div>
+</section>
+
+<!-- NASA-11 · Pruebas -->
+<section class="slide light tight">
+  <div class="spk d2"><div class="av">K</div>Daksson</div>
+  <div class="dhead"><div class="eyebrow">¿Y cómo sé que funciona?</div><h3>Probé justo los casos raros que encontré en los datos</h3></div>
+  <div class="cmp">
+    <div>
+      <div class="codehead proy"><iconify-icon icon="mdi:rocket-launch-outline"></iconify-icon> nasa.mapper.spec.ts (fragmento)</div>
+      <div class="code sm"><span class="f">it</span>(<span class="s">'should fill the missing optional fields'</span>, () =&gt; {
+  <span class="k">const</span> apod = <span class="t">NasaMapper</span>.<span class="f">mapApodResponseToApod</span>({
+    date: <span class="s">'2026-09-10'</span>,
+    title: <span class="s">'Video'</span>,
+    explanation: <span class="s">''</span>,
+    media_type: <span class="s">'other'</span>
+  });
+
+  <span class="f">expect</span>(apod.url).toBeNull();
+  <span class="f">expect</span>(apod.copyright).toBe(<span class="s">'Dominio público'</span>);
+});
+
+<span class="f">it</span>(<span class="s">'should map the asteroids of a date sorted by distance'</span>, () =&gt; {
+  <span class="c">// far = 9.000.000 km · none = sin acercamiento · near = 100,4 km</span>
+  ...
+  <span class="f">expect</span>(asteroids.map((item) =&gt; item.id)).toEqual([<span class="s">'near'</span>, <span class="s">'far'</span>, <span class="s">'none'</span>]);
+});</div>
+    </div>
+    <div>
+      <table class="ktable sm">
+        <thead><tr><th>Archivo</th><th>Qué revisa</th><th></th></tr></thead>
+        <tbody>
+          <tr><td><code>nasa.mapper.spec.ts</code></td><td>foto con y sin autor, texto a número, orden por distancia, fecha sin asteroides</td><td class="ok">5 ✔</td></tr>
+          <tr><td><code>nasa.service.spec.ts</code></td><td>que se envíen <code>date</code>, <code>api_key</code>, <code>start_date</code> y <code>end_date</code></td><td class="ok">4 ✔</td></tr>
+          <tr><td><code>nasa.component.spec.ts</code></td><td>el título y la imagen aparecen en la página</td><td class="ok">2 ✔</td></tr>
+        </tbody>
+      </table>
+      <div class="callout">Con las de Daniel son <b>22 pruebas</b> en total, y todas pasan con <code style="white-space:nowrap">npx ng test --watch=false</code>.</div>
+    </div>
+  </div>
+  <div class="pg"></div>
+</section>
+
+<!-- NASA-12 · Temas del curso -->
+<section class="slide paper tight">
+  <div class="spk d2"><div class="av">K</div>Daksson</div>
+  <div class="dhead"><div class="eyebrow">Lo que vimos en clase</div><h3>Dónde usé cada tema</h3></div>
+  <table class="ktable sm">
+    <thead><tr><th>Tema</th><th>Dónde lo vimos</th><th>Dónde lo usé</th></tr></thead>
+    <tbody>
+      <tr><td>Propiedades opcionales <code>?</code></td><td>Semana 1 · <code>02-objetos-interfaces.ts</code></td><td><code>url?</code>, <code>copyright?</code> y <code>getApod(date?)</code></td></tr>
+      <tr><td><code>?.</code> y <code>??</code></td><td>Semana 1 · <code>08-encadenamiento-opcional.ts</code></td><td><code>copyright?.trim() ?? 'Dominio público'</code></td></tr>
+      <tr><td>Desestructuración</td><td>Semana 1 · <code>04-desestructurador-objectos.ts</code></td><td><code>{ estimated_diameter_min, estimated_diameter_max }</code></td></tr>
+      <tr><td>Funciones flecha e <code>import</code> / <code>export</code></td><td>Semana 1 · <code>03-funciones.ts</code>, <code>05-import-exports.ts</code></td><td><code>utils/date.util.ts</code></td></tr>
+      <tr><td>Mapper y environments con la clave</td><td>gifs-app · <code>GifMapper</code>, <code>apiKey</code></td><td><code>NasaMapper</code>, <code>nasaApiKey</code></td></tr>
+      <tr><td>Servicio con <code>params</code>, <code>pipe(map)</code> y <code>subscribe</code></td><td>gifs-app · <code>searchGifs</code></td><td><code>getApod</code>, <code>getAsteroids</code></td></tr>
+      <tr><td><code>signal</code> y <code>computed</code></td><td>Semana 2 · counter, car, dragonball</td><td><code>hazardousCount</code>, <code>closest</code></td></tr>
+      <tr><td><code>input.required</code>, <code>$index</code>, <code>[class.x]</code></td><td>Semana 2 · <code>character-list</code></td><td><code>AsteroidListComponent</code></td></tr>
+      <tr><td><code>routerLink</code> y <code>routerLinkActive</code></td><td>Semana 2 · navbar</td><td><code>NasaMenuComponent</code></td></tr>
+      <tr><td><code>#ref</code> y eventos</td><td>Semana 2 · <code>dragonball-super</code></td><td><code>#dateInput</code> con <code>(change)</code></td></tr>
+      <tr><td><code>loadComponent</code></td><td>gifs-app · <code>app.routes.ts</code></td><td><code>/nasa</code> y <code>/nasa/asteroides</code></td></tr>
+      <tr><td>Pruebas con <code>provideHttpClientTesting</code></td><td>gifs-app · <code>gifs.services.spec.ts</code></td><td><code>nasa.service.spec.ts</code></td></tr>
+    </tbody>
+  </table>
+  <div class="pg"></div>
+</section>
+
+<!-- NASA-13 · Demo -->
+<section class="slide dark tight">
+  <div class="spk d2"><div class="av">K</div>Daksson</div>
+  <div class="dhead"><div class="eyebrow">Ahora sí, en vivo</div><h3 style="color:var(--light)">Lo que les voy a mostrar</h3></div>
+  <div class="twocol">
+    <ul class="vlist">
+      <li><iconify-icon icon="mdi:numeric-1-circle" style="color:var(--nasa)"></iconify-icon><div><b>Abro /nasa.</b> Aparece "Cargando..." y luego la foto más reciente.</div></li>
+      <li><iconify-icon icon="mdi:numeric-2-circle" style="color:var(--nasa)"></iconify-icon><div><b>Elijo el 13 de septiembre.</b> Ese día fue un video, así que sale el enlace para verlo.</div></li>
+      <li><iconify-icon icon="mdi:numeric-3-circle" style="color:var(--nasa)"></iconify-icon><div><b>Elijo el 16 de junio de 1995.</b> La primera foto de la historia de APOD.</div></li>
+    </ul>
+    <ul class="vlist">
+      <li><iconify-icon icon="mdi:numeric-4-circle" style="color:var(--nasa)"></iconify-icon><div><b>Paso a Asteroides.</b> Los de hoy, con el resumen arriba.</div></li>
+      <li><iconify-icon icon="mdi:numeric-5-circle" style="color:var(--nasa)"></iconify-icon><div><b>Elijo el 15 de septiembre.</b> Son 7 y uno es peligroso: la tarjeta y su fila se ponen rojas.</div></li>
+      <li><iconify-icon icon="mdi:numeric-6-circle" style="color:var(--nasa)"></iconify-icon><div><b>Abro F12, pestaña Network.</b> Para que vean la petición con <code>start_date</code>, <code>end_date</code> y <code>api_key</code>.</div></li>
+    </ul>
+  </div>
+  <div class="pg"></div>
+</section>
+
+<!-- NASA-14 · Lo que me llevo -->
+<section class="slide nasa">
+  <div class="spk d2"><div class="av">K</div>Daksson</div>
+  <div class="eyebrow anim">Para cerrar mi parte</div>
+  <div class="h2 anim" style="margin-bottom:26px">Lo que me llevo de esto</div>
+  <ul class="vlist anim">
+    <li><iconify-icon icon="mdi:numeric-1-circle" style="color:var(--nasa)"></iconify-icon><div><b>Mirar los datos reales antes de programar.</b> Los campos que faltan y los saltos de línea solo aparecieron al revisar varios días.</div></li>
+    <li><iconify-icon icon="mdi:numeric-2-circle" style="color:var(--nasa)"></iconify-icon><div><b><code>?.</code> y <code>??</code> sirven de verdad.</b> En clase eran un ejemplo; aquí evitan que la página falle.</div></li>
+    <li><iconify-icon icon="mdi:numeric-3-circle" style="color:var(--nasa)"></iconify-icon><div><b>Las fechas tienen trampa.</b> La hora UTC puede cambiarte el día sin que te des cuenta.</div></li>
+  </ul>
+  <div class="pg"></div>
+</section>
+<!-- ═══════════════ PARTE NASA · FIN ═══════════════ -->
+
+<!-- ═══════════════ CIERRE (común) ═══════════════ -->
+<section class="slide space">
+  <div class="uni"><b>Ingeniería de Sistemas</b><br>Universidad de los Llanos<br>Desarrollo de Software II · 2026</div>
+  <div class="display anim">Gracias.</div>
+  <div class="lead anim" style="margin-top:24px">¿Preguntas?</div>
+  <div class="coverlogos anim">
+    <div class="b"><iconify-icon icon="mdi:death-star-variant" style="color:var(--star)"></iconify-icon> swapi.dev</div>
+    <span class="plus">+</span>
+    <div class="b"><iconify-icon icon="simple-icons:nasa" style="color:var(--nasa)"></iconify-icon> api.nasa.gov</div>
+  </div>
+  <div class="tagline">Daniel Felipe Puin Motavita · Daksson Miguel Gualteros Marin · github.com/Daksson/desarrollo_ll</div>
+  <div class="pg"></div>
+</section>
+
+</div></div>
+
+<div class="hint">← → · F pantalla completa · P imprimir · #n salta a la diapositiva n</div>
+<div class="hud">
+  <button onclick="go(-1)" aria-label="Anterior">‹</button>
+  <span class="pgn" id="pgn"></span>
+  <button onclick="go(1)" aria-label="Siguiente">›</button>
+</div>
+
+<script>
+const deck = document.getElementById('deck');
+const stage = document.getElementById('stage');
+const slides = [...document.querySelectorAll('.slide')];
+let current = 0;
+
+function fit() {
+  const scale = Math.min(window.innerWidth / 1280, window.innerHeight / 720);
+  deck.style.transform = 'scale(' + scale + ')';
+}
+
+function show() {
+  slides.forEach((slide, index) => slide.classList.toggle('active', index === current));
+  document.getElementById('pgn').textContent = (current + 1) + ' / ' + slides.length;
+  history.replaceState(null, '', '#' + (current + 1));
+}
+
+function go(delta) {
+  current = Math.max(0, Math.min(slides.length - 1, current + delta));
+  show();
+}
+
+window.addEventListener('resize', fit);
+document.addEventListener('keydown', (event) => {
+  if (event.key === 'ArrowRight' || event.key === 'PageDown' || event.key === ' ') { go(1); event.preventDefault(); }
+  else if (event.key === 'ArrowLeft' || event.key === 'PageUp') { go(-1); }
+  else if (event.key === 'Home') { current = 0; show(); }
+  else if (event.key === 'End') { current = slides.length - 1; show(); }
+  else if (event.key.toLowerCase() === 'f') {
+    if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+    else document.exitFullscreen();
+  }
+  else if (event.key.toLowerCase() === 'p') { window.print(); }
+});
+
+// Clic en la mitad derecha avanza, en la izquierda retrocede (fuera de los diagramas)
+stage.addEventListener('click', (event) => {
+  if (event.target.closest('.hud') || event.target.closest('iframe')) return;
+  if (event.clientX > window.innerWidth / 2) go(1); else go(-1);
+});
+
+// La barra de navegación y la ayuda solo aparecen al mover el ratón
+const hud = document.querySelector('.hud');
+const hint = document.querySelector('.hint');
+let hideTimer;
+document.addEventListener('mousemove', () => {
+  hud.classList.add('visible');
+  hint.classList.add('visible');
+  clearTimeout(hideTimer);
+  hideTimer = setTimeout(() => {
+    hud.classList.remove('visible');
+    hint.classList.remove('visible');
+  }, 2000);
+});
+
+slides.forEach((slide, index) => {
+  const pg = slide.querySelector('.pg');
+  if (pg) pg.textContent = String(index + 1).padStart(2, '0');
+});
+
+const fromHash = parseInt(location.hash.slice(1), 10);
+if (!Number.isNaN(fromHash) && fromHash >= 1 && fromHash <= slides.length) current = fromHash - 1;
+fit();
+show();
+</script>
+</body>
+</html>

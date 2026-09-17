@@ -1,0 +1,295 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "NASA · arquitectura de la aplicación",
+    "quality_profile": "showcase",
+    "legend": {
+      "entries": {
+        "frontend": {
+          "label": "Pantalla y rutas"
+        },
+        "backend": {
+          "label": "Lógica de datos"
+        },
+        "security": {
+          "label": "Configuración con la clave"
+        },
+        "external": {
+          "label": "Fuera de la aplicación"
+        }
+      }
+    }
+  },
+  "components": [
+    {
+      "id": "usuario",
+      "type": "external",
+      "label": "Usuario",
+      "sublabel": "navegador web",
+      "pos": [
+        40,
+        250
+      ],
+      "size": [
+        140,
+        64
+      ]
+    },
+    {
+      "id": "rutas",
+      "type": "frontend",
+      "label": "Rutas",
+      "sublabel": "app.routes.ts",
+      "pos": [
+        260,
+        250
+      ],
+      "size": [
+        160,
+        64
+      ]
+    },
+    {
+      "id": "menu",
+      "type": "frontend",
+      "label": "Menú de la NASA",
+      "sublabel": "NasaMenuComponent",
+      "pos": [
+        500,
+        110
+      ],
+      "size": [
+        200,
+        64
+      ]
+    },
+    {
+      "id": "foto",
+      "type": "frontend",
+      "label": "Página foto del día",
+      "sublabel": "NasaComponent",
+      "pos": [
+        500,
+        250
+      ],
+      "size": [
+        200,
+        64
+      ]
+    },
+    {
+      "id": "asteroides",
+      "type": "frontend",
+      "label": "Página de asteroides",
+      "sublabel": "NasaAsteroidsComponent",
+      "pos": [
+        500,
+        390
+      ],
+      "size": [
+        200,
+        64
+      ]
+    },
+    {
+      "id": "tabla",
+      "type": "frontend",
+      "label": "Tabla (componente hijo)",
+      "sublabel": "AsteroidListComponent",
+      "pos": [
+        500,
+        530
+      ],
+      "size": [
+        200,
+        64
+      ]
+    },
+    {
+      "id": "servicio",
+      "type": "backend",
+      "label": "Servicio",
+      "sublabel": "NasaService",
+      "pos": [
+        800,
+        250
+      ],
+      "size": [
+        190,
+        64
+      ]
+    },
+    {
+      "id": "mapper",
+      "type": "backend",
+      "label": "Traductor de datos",
+      "sublabel": "NasaMapper",
+      "pos": [
+        800,
+        110
+      ],
+      "size": [
+        190,
+        64
+      ]
+    },
+    {
+      "id": "config",
+      "type": "security",
+      "label": "Configuración",
+      "sublabel": "environment.ts",
+      "pos": [
+        800,
+        530
+      ],
+      "size": [
+        170,
+        64
+      ]
+    },
+    {
+      "id": "nasa",
+      "type": "external",
+      "label": "API de la NASA",
+      "sublabel": "api.nasa.gov",
+      "pos": [
+        1090,
+        250
+      ],
+      "size": [
+        170,
+        64
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "Aplicación Angular (corre en el navegador)",
+      "wraps": [
+        "rutas",
+        "menu",
+        "foto",
+        "asteroides",
+        "tabla",
+        "servicio",
+        "mapper",
+        "config"
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "navega",
+      "from": "usuario",
+      "to": "rutas",
+      "label": "abre la URL",
+      "variant": "emphasis"
+    },
+    {
+      "id": "ruta-foto",
+      "from": "rutas",
+      "to": "foto",
+      "label": "loadComponent /nasa",
+      "labelDy": -26
+    },
+    {
+      "id": "ruta-asteroides",
+      "from": "rutas",
+      "to": "asteroides",
+      "label": "loadComponent /nasa/asteroides",
+      "fromSide": "bottom",
+      "toSide": "left"
+    },
+    {
+      "id": "menu-rutas",
+      "from": "menu",
+      "to": "rutas",
+      "label": "routerLink: cambia de página",
+      "variant": "dashed",
+      "fromSide": "left",
+      "toSide": "top"
+    },
+    {
+      "id": "asteroides-tabla",
+      "from": "asteroides",
+      "to": "tabla",
+      "label": "input.required: le pasa la lista",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "labelDy": 24
+    },
+    {
+      "id": "foto-servicio",
+      "from": "foto",
+      "to": "servicio",
+      "label": "subscribe: pide la foto",
+      "variant": "emphasis",
+      "labelDy": -26
+    },
+    {
+      "id": "asteroides-servicio",
+      "from": "asteroides",
+      "to": "servicio",
+      "label": "subscribe: pide asteroides",
+      "fromSide": "right",
+      "toSide": "bottom",
+      "labelSegment": 0
+    },
+    {
+      "id": "servicio-mapper",
+      "from": "servicio",
+      "to": "mapper",
+      "label": "pipe(map): convierte",
+      "fromSide": "top",
+      "toSide": "bottom"
+    },
+    {
+      "id": "servicio-nasa",
+      "from": "servicio",
+      "to": "nasa",
+      "label": "HttpClient: GET",
+      "variant": "emphasis"
+    },
+    {
+      "id": "config-servicio",
+      "from": "config",
+      "to": "servicio",
+      "label": "URL y api_key",
+      "variant": "security",
+      "fromSide": "top",
+      "toSide": "bottom",
+      "labelSegment": 0
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Pantalla y rutas",
+      "items": [
+        "routerLink: enlace sin recargar; routerLinkActive marca la página actual",
+        "input.required: dato que el padre le pasa al hijo",
+        "computed: se recalcula solo, como el total de peligrosos"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Lógica de datos",
+      "items": [
+        "Observable: respuesta que llega después; subscribe la recibe",
+        "pipe(map): transforma la respuesta con el mapper",
+        "?. y ??: valor por defecto si un dato no viene"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Fuera de la aplicación",
+      "items": [
+        "API key: clave que la NASA pide en cada petición",
+        "params: date para la foto; start_date y end_date para asteroides",
+        "JSON: texto con pares clave: valor"
+      ]
+    }
+  ]
+}

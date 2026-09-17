@@ -1,0 +1,253 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "Abrir el detalle de Luke Skywalker, paso a paso",
+    "viewBox": [
+      1080,
+      640
+    ],
+    "column_fit": "spread",
+    "quality_profile": "showcase",
+    "legend": {
+      "entries": {
+        "default": {
+          "label": "llamada dentro de la app"
+        },
+        "emphasis": {
+          "label": "petición HTTP a la API"
+        },
+        "return": {
+          "label": "respuesta"
+        }
+      }
+    }
+  },
+  "participants": [
+    {
+      "id": "usuario",
+      "type": "external",
+      "label": "Usuario",
+      "sublabel": "navegador"
+    },
+    {
+      "id": "router",
+      "type": "frontend",
+      "label": "Enrutador",
+      "sublabel": "ActivatedRoute"
+    },
+    {
+      "id": "detalle",
+      "type": "frontend",
+      "label": "Página de detalle",
+      "sublabel": "StarwarsDetailComponent"
+    },
+    {
+      "id": "servicio",
+      "type": "backend",
+      "label": "Servicio",
+      "sublabel": "StarwarsService"
+    },
+    {
+      "id": "mapper",
+      "type": "backend",
+      "label": "Traductor",
+      "sublabel": "StarwarsMapper"
+    },
+    {
+      "id": "swapi",
+      "type": "external",
+      "label": "API Star Wars",
+      "sublabel": "swapi.dev"
+    }
+  ],
+  "segments": [
+    {
+      "from": 150,
+      "to": 212,
+      "label": "1 · La URL trae el id"
+    },
+    {
+      "from": 225,
+      "to": 402,
+      "label": "2 · Pedir el personaje"
+    },
+    {
+      "from": 415,
+      "to": 562,
+      "label": "3 · Pedir planeta y películas"
+    }
+  ],
+  "messages": [
+    {
+      "id": "clic",
+      "from": "usuario",
+      "to": "router",
+      "y": 165,
+      "label": "routerLink: clic en Ver detalle"
+    },
+    {
+      "id": "params",
+      "from": "router",
+      "to": "detalle",
+      "y": 197,
+      "label": "ActivatedRoute: id = '1'"
+    },
+    {
+      "id": "get-character",
+      "from": "detalle",
+      "to": "servicio",
+      "y": 240,
+      "label": "getCharacter(1)"
+    },
+    {
+      "id": "get-people",
+      "from": "servicio",
+      "to": "swapi",
+      "y": 270,
+      "label": "HttpClient: GET /people/1/",
+      "variant": "emphasis"
+    },
+    {
+      "id": "swapi-person",
+      "from": "swapi",
+      "to": "servicio",
+      "y": 300,
+      "label": "JSON: height \"172\"",
+      "variant": "return"
+    },
+    {
+      "id": "map-person",
+      "from": "servicio",
+      "to": "mapper",
+      "y": 330,
+      "label": "map: convertir datos"
+    },
+    {
+      "id": "character",
+      "from": "mapper",
+      "to": "servicio",
+      "y": 360,
+      "label": "height 172",
+      "variant": "return"
+    },
+    {
+      "id": "next-character",
+      "from": "servicio",
+      "to": "detalle",
+      "y": 390,
+      "label": "subscribe: llega el personaje",
+      "variant": "return"
+    },
+    {
+      "id": "get-extra",
+      "from": "detalle",
+      "to": "servicio",
+      "y": 430,
+      "label": "getPlanet · getFilm ×4"
+    },
+    {
+      "id": "get-planet-films",
+      "from": "servicio",
+      "to": "swapi",
+      "y": 460,
+      "label": "GET planets/1 y films",
+      "variant": "emphasis"
+    },
+    {
+      "id": "planet-films",
+      "from": "swapi",
+      "to": "servicio",
+      "y": 490,
+      "label": "Tatooine y 4 películas",
+      "variant": "return"
+    },
+    {
+      "id": "set-planet-films",
+      "from": "servicio",
+      "to": "detalle",
+      "y": 520,
+      "label": "signal.set: se guardan",
+      "variant": "return"
+    },
+    {
+      "id": "render",
+      "from": "detalle",
+      "to": "usuario",
+      "y": 550,
+      "label": "la pantalla se actualiza",
+      "variant": "return"
+    }
+  ],
+  "activations": [
+    {
+      "participant": "router",
+      "from": 160,
+      "to": 203,
+      "type": "frontend"
+    },
+    {
+      "participant": "detalle",
+      "from": 192,
+      "to": 556,
+      "type": "frontend"
+    },
+    {
+      "participant": "servicio",
+      "from": 235,
+      "to": 396,
+      "type": "backend"
+    },
+    {
+      "participant": "swapi",
+      "from": 265,
+      "to": 306,
+      "type": "external"
+    },
+    {
+      "participant": "mapper",
+      "from": 325,
+      "to": 366,
+      "type": "backend"
+    },
+    {
+      "participant": "servicio",
+      "from": 425,
+      "to": 526,
+      "type": "backend"
+    },
+    {
+      "participant": "swapi",
+      "from": 455,
+      "to": 496,
+      "type": "external"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "1 · La URL trae el id",
+      "items": [
+        "routerLink: enlace que cambia de página sin recargar",
+        "ActivatedRoute: lee la URL; en /starwars/1 da id '1'"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "2 · Pedir el personaje",
+      "items": [
+        "HttpClient: hace la petición; GET = leer datos",
+        "JSON: texto con pares clave: valor",
+        "map convierte la respuesta; subscribe la recibe"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "3 · Planeta y películas",
+      "items": [
+        "El personaje trae solo URLs: se piden aparte",
+        "signal: variable que actualiza la pantalla; set le da un valor"
+      ]
+    }
+  ]
+}

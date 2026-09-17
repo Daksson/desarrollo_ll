@@ -1,0 +1,254 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Star Wars · arquitectura de la aplicación",
+    "quality_profile": "showcase",
+    "legend": {
+      "entries": {
+        "frontend": {
+          "label": "Pantalla y rutas"
+        },
+        "backend": {
+          "label": "Lógica de datos"
+        },
+        "external": {
+          "label": "Fuera de la aplicación"
+        }
+      }
+    }
+  },
+  "components": [
+    {
+      "id": "usuario",
+      "type": "external",
+      "label": "Usuario",
+      "sublabel": "navegador web",
+      "pos": [
+        40,
+        300
+      ],
+      "size": [
+        140,
+        64
+      ]
+    },
+    {
+      "id": "rutas",
+      "type": "frontend",
+      "label": "Rutas",
+      "sublabel": "app.routes.ts",
+      "pos": [
+        260,
+        300
+      ],
+      "size": [
+        160,
+        64
+      ]
+    },
+    {
+      "id": "lista",
+      "type": "frontend",
+      "label": "Página de personajes",
+      "sublabel": "StarwarsComponent",
+      "pos": [
+        500,
+        300
+      ],
+      "size": [
+        200,
+        64
+      ]
+    },
+    {
+      "id": "tabla",
+      "type": "frontend",
+      "label": "Tabla (componente hijo)",
+      "sublabel": "CharacterListComponent",
+      "pos": [
+        500,
+        130
+      ],
+      "size": [
+        200,
+        64
+      ]
+    },
+    {
+      "id": "detalle",
+      "type": "frontend",
+      "label": "Página de detalle",
+      "sublabel": "StarwarsDetailComponent",
+      "pos": [
+        500,
+        470
+      ],
+      "size": [
+        200,
+        64
+      ]
+    },
+    {
+      "id": "servicio",
+      "type": "backend",
+      "label": "Servicio",
+      "sublabel": "StarwarsService",
+      "pos": [
+        800,
+        300
+      ],
+      "size": [
+        190,
+        64
+      ]
+    },
+    {
+      "id": "mapper",
+      "type": "backend",
+      "label": "Traductor de datos",
+      "sublabel": "StarwarsMapper",
+      "pos": [
+        800,
+        130
+      ],
+      "size": [
+        190,
+        64
+      ]
+    },
+    {
+      "id": "swapi",
+      "type": "external",
+      "label": "API de Star Wars",
+      "sublabel": "swapi.dev",
+      "pos": [
+        1090,
+        300
+      ],
+      "size": [
+        170,
+        64
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "Aplicación Angular (corre en el navegador)",
+      "wraps": [
+        "rutas",
+        "lista",
+        "tabla",
+        "detalle",
+        "servicio",
+        "mapper"
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "navega",
+      "from": "usuario",
+      "to": "rutas",
+      "label": "abre la URL",
+      "variant": "emphasis"
+    },
+    {
+      "id": "ruta-lista",
+      "from": "rutas",
+      "to": "lista",
+      "label": "loadComponent /starwars",
+      "labelDy": -26
+    },
+    {
+      "id": "ruta-detalle",
+      "from": "rutas",
+      "to": "detalle",
+      "label": "loadComponent /starwars/:id",
+      "fromSide": "bottom",
+      "toSide": "left"
+    },
+    {
+      "id": "lista-tabla",
+      "from": "lista",
+      "to": "tabla",
+      "label": "input.required: le pasa la lista",
+      "fromSide": "top",
+      "toSide": "bottom",
+      "labelDy": -40
+    },
+    {
+      "id": "tabla-ruta",
+      "from": "tabla",
+      "to": "rutas",
+      "label": "routerLink: ir al detalle",
+      "variant": "dashed",
+      "fromSide": "left",
+      "toSide": "top"
+    },
+    {
+      "id": "lista-servicio",
+      "from": "lista",
+      "to": "servicio",
+      "label": "subscribe: pide personajes",
+      "variant": "emphasis",
+      "labelDy": -26
+    },
+    {
+      "id": "detalle-servicio",
+      "from": "detalle",
+      "to": "servicio",
+      "label": "subscribe: pide uno",
+      "fromSide": "right",
+      "toSide": "bottom"
+    },
+    {
+      "id": "servicio-mapper",
+      "from": "servicio",
+      "to": "mapper",
+      "label": "pipe(map): convierte",
+      "fromSide": "top",
+      "toSide": "bottom"
+    },
+    {
+      "id": "servicio-swapi",
+      "from": "servicio",
+      "to": "swapi",
+      "label": "HttpClient: GET",
+      "variant": "emphasis"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Pantalla y rutas",
+      "items": [
+        "loadComponent: carga la página solo cuando se abre su ruta",
+        ":id: parte de la URL que cambia, como el 1 de /starwars/1",
+        "input.required: dato obligatorio que el padre le pasa al componente hijo",
+        "routerLink: enlace que cambia de página sin recargar el navegador"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Lógica de datos",
+      "items": [
+        "HttpClient: herramienta de Angular para hacer peticiones HTTP",
+        "Observable: respuesta que llegará más tarde",
+        "subscribe: \"avísame cuando llegue\" y recibe la respuesta",
+        "pipe(map): transforma la respuesta antes de entregarla; aquí llama al mapper"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Fuera de la aplicación",
+      "items": [
+        "API: servidor que entrega datos",
+        "GET: petición HTTP para leer datos",
+        "JSON: formato de texto con pares clave: valor",
+        "swapi.dev no pide clave"
+      ]
+    }
+  ]
+}
