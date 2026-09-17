@@ -1,0 +1,28 @@
+<div class="table-container">
+  <table>
+    <thead>
+      <tr>
+        <th>Nombre</th>
+        <th>Género</th>
+        <th>Año de nacimiento</th>
+        <th>Altura (cm)</th>
+        <th>Peso (kg)</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (character of characters(); track character.id) {
+        <tr>
+          <td class="name">{{ character.name }}</td>
+          <td>{{ character.gender }}</td>
+          <td>{{ character.birthYear }}</td>
+          <td>{{ character.height ?? 'Desconocida' }}</td>
+          <td>{{ character.mass ?? 'Desconocido' }}</td>
+          <td>
+            <a class="detail-link" [routerLink]="['/starwars', character.id]">Ver detalle</a>
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>

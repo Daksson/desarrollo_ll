@@ -1,44 +1,65 @@
-import { Component, OnInit, inject } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { StarwarsService, Person } from '../../services/service_starwars/starwars.service';
+import { Component, inject, signal } from '@angular/core';
+import { StarwarsService } from '../../services/service_starwars/starwars.service';
+import { Character } from '../../interfaces/starwars.interface';
+import { CharacterListComponent } from '../../components/starwars/character-list/character-list.component';
 
 @Component({
   selector: 'app-starwars',
   standalone: true,
-  imports: [FormsModule],
+  imports: [CharacterListComponent],
   templateUrl: './starwars.component.html',
   styleUrl: './starwars.component.css'
 })
-export class StarwarsComponent implements OnInit {
-  readonly starwars = inject(StarwarsService);
+export default class StarwarsComponent {
+  private starwarsService = inject(StarwarsService);
 
-  searchText = '';
-  page = 1;
+  characters = signal<Character[]>([]);
+  total = signal(0);
+  hasNext = signal(false);
+  hasPrevious = signal(false);
+  loading = signal(false);
+  error = signal<string | null>(null);
 
-  ngOnInit() {
-    this.starwars.loadPeople(this.page, this.searchText);
+  page = signal(1);
+  searchText = signal('');
+
+  constructor() {
+    this.loadCharacters();
   }
 
-  search() {
-    this.page = 1;
-    this.starwars.loadPeople(this.page, this.searchText);
+  loadCharacters() {
+    this.loading.set(true);
+    this.error.set(null);
+
+    this.starwarsService.getCharacters(this.page(), this.searchText()).subscribe({
+      next: (characterPage) => {
+        this.characters.set(characterPage.characters);
+        this.total.set(characterPage.total);
+        this.hasNext.set(characterPage.hasNext);
+        this.hasPrevious.set(characterPage.hasPrevious);
+        this.loading.set(false);
+      },
+      error: () => {
+        this.characters.set([]);
+        this.error.set('No se pudieron cargar los personajes.');
+        this.loading.set(false);
+      }
+    });
+  }
+
+  onSearch(text: string) {
+    this.searchText.set(text.trim());
+    this.page.set(1);
+    this.loadCharacters();
   }
 
   nextPage() {
-    this.page++;
-    this.starwars.loadPeople(this.page, this.searchText);
+    this.page.update((current) => current + 1);
+    this.loadCharacters();
   }
 
   previousPage() {
-    this.page--;
-    this.starwars.loadPeople(this.page, this.searchText);
-  }
-
-  showDetail(person: Person) {
-    this.starwars.loadDetail(person);
-  }
-
-  closeDetail() {
-    this.starwars.selectedPerson.set(null);
+    this.page.update((current) => current - 1);
+    this.loadCharacters();
   }
 }

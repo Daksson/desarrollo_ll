@@ -1,0 +1,52 @@
+<a class="back-link" routerLink="/starwars">&larr; Volver a personajes</a>
+
+@if (loading()) {
+  <p class="message">Cargando...</p>
+}
+
+@if (error()) {
+  <p class="message error">{{ error() }}</p>
+}
+
+@if (character(); as character) {
+  <h1>{{ character.name }}</h1>
+
+  <div class="cards">
+    <section class="card">
+      <h2>Datos</h2>
+      <ul>
+        <li>Género: {{ character.gender }}</li>
+        <li>Año de nacimiento: {{ character.birthYear }}</li>
+        <li>Altura: {{ character.height ?? 'Desconocida' }} cm</li>
+        <li>Peso: {{ character.mass ?? 'Desconocido' }} kg</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>Planeta natal</h2>
+      @if (planet(); as planet) {
+        <p class="planet-name">{{ planet.name }}</p>
+        <ul>
+          <li>Clima: {{ planet.climate }}</li>
+          <li>Terreno: {{ planet.terrain }}</li>
+          <li>Población: {{ planet.population }}</li>
+        </ul>
+      } @else {
+        <p class="message">Cargando planeta...</p>
+      }
+    </section>
+  </div>
+
+  <section class="card">
+    <h2>Películas</h2>
+    @if (films().length > 0) {
+      <ul>
+        @for (film of films(); track film.id) {
+          <li>Episodio {{ film.episode }}: {{ film.title }} ({{ film.releaseDate }}), dirigida por {{ film.director }}</li>
+        }
+      </ul>
+    } @else {
+      <p class="message">Cargando películas...</p>
+    }
+  </section>
+}
