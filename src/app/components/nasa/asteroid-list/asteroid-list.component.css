@@ -1,0 +1,56 @@
+.table-container {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: #121a33;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+th {
+  padding: 12px;
+  text-align: left;
+  color: #fff;
+  background-color: #0b1026;
+  border-bottom: 2px solid #fc3d21;
+}
+
+td {
+  padding: 10px 12px;
+  border-top: 1px solid #243155;
+}
+
+tbody tr:hover {
+  background-color: #1a2548;
+}
+
+tr.hazardous {
+  background-color: rgba(252, 61, 33, 0.12);
+}
+
+.name {
+  font-weight: 600;
+  color: #fff;
+  white-space: nowrap;
+}
+
+.badge {
+  display: inline-block;
+  padding: 2px 10px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  border-radius: 999px;
+}
+
+.badge.danger {
+  color: #fff;
+  background-color: #fc3d21;
+}
+
+.badge.safe {
+  color: #0b1026;
+  background-color: #7fd6a4;
+}

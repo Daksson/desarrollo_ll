@@ -1,1 +1,44 @@
-<p>nasa works!</p>
+<nasa-menu/>
+
+<h1>Foto astronómica del día</h1>
+
+<div class="date">
+  <label for="apod-date">Elige un día</label>
+  <input
+    id="apod-date"
+    #dateInput
+    type="date"
+    min="1995-06-16"
+    [max]="today"
+    [value]="apod()?.date ?? today"
+    (change)="onDateChange(dateInput.value)"
+  />
+</div>
+
+@if (loading()) {
+  <p class="message">Cargando...</p>
+}
+
+@if (error()) {
+  <p class="message error">{{ error() }}</p>
+}
+
+@if (apod(); as apod) {
+  <article class="apod">
+    @if (apod.mediaType === 'image' && apod.url) {
+      <a [href]="apod.hdUrl ?? apod.url" target="_blank" rel="noopener">
+        <img [src]="apod.url" [alt]="apod.title" />
+      </a>
+    } @else if (apod.url) {
+      <a class="video-link" [href]="apod.url" target="_blank" rel="noopener">Este día la NASA publicó un video: verlo aquí</a>
+    } @else {
+      <p class="message">Este día no tiene una imagen para mostrar.</p>
+    }
+
+    <div class="info">
+      <h2>{{ apod.title }}</h2>
+      <p class="meta">{{ apod.date }} · {{ apod.copyright }}</p>
+      <p class="explanation">{{ apod.explanation }}</p>
+    </div>
+  </article>
+}

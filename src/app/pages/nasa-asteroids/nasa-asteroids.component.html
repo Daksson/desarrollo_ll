@@ -1,0 +1,50 @@
+<nasa-menu/>
+
+<h1>Asteroides que pasan cerca de la Tierra</h1>
+
+<div class="date">
+  <label for="asteroid-date">Elige un día</label>
+  <input
+    id="asteroid-date"
+    #dateInput
+    type="date"
+    [value]="date()"
+    (change)="onDateChange(dateInput.value)"
+  />
+</div>
+
+@if (loading()) {
+  <p class="message">Cargando...</p>
+}
+
+@if (error()) {
+  <p class="message error">{{ error() }}</p>
+}
+
+@if (!loading() && !error()) {
+  <div class="summary">
+    <div class="card">
+      <span class="number">{{ asteroids().length }}</span>
+      <span class="label">asteroides este día</span>
+    </div>
+    <div class="card" [class.danger]="hazardousCount() > 0">
+      <span class="number">{{ hazardousCount() }}</span>
+      <span class="label">potencialmente peligrosos</span>
+    </div>
+    <div class="card">
+      @if (closest(); as closest) {
+        <span class="number small">{{ closest.name }}</span>
+        <span class="label">el más cercano@if (closest.distanceKm !== null) {, a {{ closest.distanceKm | number }} km}</span>
+      } @else {
+        <span class="number small">Ninguno</span>
+        <span class="label">el más cercano</span>
+      }
+    </div>
+  </div>
+
+  @if (asteroids().length > 0) {
+    <nasa-asteroid-list [asteroids]="asteroids()"/>
+  } @else {
+    <p class="message">La NASA no registra asteroides para ese día.</p>
+  }
+}

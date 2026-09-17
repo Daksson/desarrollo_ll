@@ -1,0 +1,25 @@
+nav {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+a {
+  padding: 8px 18px;
+  font-weight: 600;
+  color: #c9d3ea;
+  text-decoration: none;
+  border: 1px solid #34426a;
+  border-radius: 999px;
+}
+
+a:hover {
+  border-color: #fc3d21;
+}
+
+a.active {
+  color: #fff;
+  background-color: #fc3d21;
+  border-color: #fc3d21;
+}

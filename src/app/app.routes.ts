@@ -1,10 +1,16 @@
 import { Routes } from '@angular/router';
 import { LandingComponent } from './pages/landing/landing.component';
-import { NasaComponent } from './pages/nasa/nasa.component';
 
 export const routes: Routes = [
   { path: '', component: LandingComponent },
-  { path: 'nasa', component: NasaComponent },
+  {
+    path: 'nasa',
+    loadComponent: () => import('./pages/nasa/nasa.component')
+  },
+  {
+    path: 'nasa/asteroides',
+    loadComponent: () => import('./pages/nasa-asteroids/nasa-asteroids.component')
+  },
   {
     path: 'starwars',
     loadComponent: () => import('./pages/starwars/starwars.component')

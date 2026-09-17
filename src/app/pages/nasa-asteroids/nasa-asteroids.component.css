@@ -56,43 +56,43 @@ input:focus {
   color: #ff7a66;
 }
 
-/* Foto del día */
+/* Resumen */
 
-.apod {
+.summary {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 24px;
-  align-items: start;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
 }
 
-img {
-  display: block;
-  width: 100%;
-  border-radius: 8px;
-}
-
-.video-link {
-  display: block;
-  padding: 40px 20px;
-  text-align: center;
-  font-weight: 600;
-  color: #fff;
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 18px 20px;
   background-color: #121a33;
-  border: 1px dashed #fc3d21;
+  border: 1px solid #34426a;
   border-radius: 8px;
-  text-decoration: none;
 }
 
-.info h2 {
-  margin-top: 0;
+.card.danger {
+  border-color: #fc3d21;
+}
+
+.number {
+  font-size: 2rem;
+  font-weight: 700;
   color: #fff;
 }
 
-.meta {
-  font-size: 0.9rem;
+.number.small {
+  font-size: 1.2rem;
+}
+
+.card.danger .number {
   color: #fc3d21;
 }
 
-.explanation {
-  line-height: 1.6;
+.label {
+  color: #9aa7c7;
 }

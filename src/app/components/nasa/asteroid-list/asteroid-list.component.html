@@ -1,0 +1,44 @@
+<div class="table-container">
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Nombre</th>
+        <th>Diámetro (m)</th>
+        <th>Velocidad (km/h)</th>
+        <th>Distancia a la Tierra (km)</th>
+        <th>¿Peligroso?</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (asteroid of asteroids(); track asteroid.id; let i = $index) {
+        <tr [class.hazardous]="asteroid.hazardous">
+          <td>{{ i + 1 }}</td>
+          <td class="name">{{ asteroid.name }}</td>
+          <td>{{ asteroid.diameterMinMeters }} – {{ asteroid.diameterMaxMeters }}</td>
+          <td>
+            @if (asteroid.speedKmH !== null) {
+              {{ asteroid.speedKmH | number }}
+            } @else {
+              Sin dato
+            }
+          </td>
+          <td>
+            @if (asteroid.distanceKm !== null) {
+              {{ asteroid.distanceKm | number }}
+            } @else {
+              Sin dato
+            }
+          </td>
+          <td>
+            @if (asteroid.hazardous) {
+              <span class="badge danger">Sí</span>
+            } @else {
+              <span class="badge safe">No</span>
+            }
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
